@@ -32,7 +32,7 @@ final class OAuth2Service {
         }
         
         let task = URLSession.shared.data(for: request) { result in
-           
+            
             switch result {
             case .success(let data):
                 let decoder = JSONDecoder()
@@ -45,11 +45,12 @@ final class OAuth2Service {
                     print("Ошибка: \(error)")
                     completion(.failure(error))
                 }
-
+                
             case .failure(let error):
                 print("Ошибка: \(error)")
                 completion(.failure(error))
             }
+                
         }
         
         task.resume()

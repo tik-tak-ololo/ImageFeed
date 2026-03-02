@@ -27,11 +27,10 @@ final class WebViewViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        loadAuthView()
-        
         webView.navigationDelegate = self
         
-        updateProgress()
+        loadAuthView()
+        
     }
     
     private func loadAuthView() {
@@ -52,6 +51,8 @@ final class WebViewViewController: UIViewController {
         
         let request = URLRequest(url: url)
         webView.load(request)
+        
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
