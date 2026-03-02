@@ -33,10 +33,16 @@ final class SplashViewController: UIViewController {
     }
 
     private func switchToTabBarController() {
-        guard let window = UIApplication.shared.windows.first else {
-            assertionFailure("Invalid window configuration")
-            return
-        }
+        
+        // Получаем активную сцену и её ключевое окно
+         guard let window = UIApplication.shared.connectedScenes
+             .compactMap({ $0 as? UIWindowScene })
+             .flatMap({ $0.windows })
+             .first(where: { $0.isKeyWindow })
+         else {
+             assertionFailure("Invalid window configuration")
+             return
+         }
         
         let tabBarController = UIStoryboard(name: "Main", bundle: .main)
             .instantiateViewController(withIdentifier: "TabBarViewController")

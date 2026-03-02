@@ -52,12 +52,13 @@ final class AuthViewController: UIViewController {
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         
+        self.navigationController?.popViewController(animated: true)
+        
         fetchOAuthToken(code) { [weak self] result in
             guard let self = self else { return }
             
             switch result {
             case .success:
-                vc.dismiss(animated: true)
                 self.delegate?.didAuthenticate(self)
             case .failure:
                 // TODO [Sprint 11] Добавьте обработку ошибки
