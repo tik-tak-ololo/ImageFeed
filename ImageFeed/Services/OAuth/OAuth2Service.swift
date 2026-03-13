@@ -17,12 +17,31 @@ struct OAuthTokenResponseBody: Codable {
 final class OAuth2Service {
     
     private let tokenStorage = OAuth2TokenStorage()
-    
     static let shared = OAuth2Service()
+    
+    private var task: URLSessionTask?
+    private var lastCode: String?
     
     private init() { }
     
     func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
+        
+        assert(Thread.isMainThread)
+        if task != nil {
+            if lastCode != code {
+                task?.cancel()
+            } else {
+                completion(.failure(NetworkError.invalidRequest))
+                return
+            }
+        } else {
+            if lastCode == code {
+                completion(.failure(NetworkError.invalidRequest))
+                return
+            }
+        }
+        lastCode = code
+        
         let request = makeOAuthTokenRequest(code: code)
         
         guard let request else {
@@ -31,7 +50,9 @@ final class OAuth2Service {
             return
         }
         
-        let task = URLSession.shared.data(for: request) { result in
+        let task = URLSession.shared.data(for: request) { [weak self] result in
+            
+            guard let self = self else { return }
             
             switch result {
             case .success(let data):
@@ -50,8 +71,13 @@ final class OAuth2Service {
                 print("Ошибка: \(error)")
                 completion(.failure(error))
             }
+            
+            self.task = nil
+            self.lastCode = nil
                 
         }
+        
+        self.task = task
         
         task.resume()
     }
