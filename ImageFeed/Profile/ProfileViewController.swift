@@ -55,6 +55,10 @@ final class ProfileViewController: UIViewController {
         setupConstraints()
         setupContent()
         setupActions()
+        
+        if let profile = ProfileService.shared.profile {
+            updateProfileDetails(profile: profile)
+        }
 
     }
     
@@ -98,9 +102,6 @@ final class ProfileViewController: UIViewController {
     
     private func setupContent() {
         avatarImageView.image = UIImage(named: "photo")
-        nameLabel.text = "Екатерина Новикова"
-        loginNameLabel.text = "@ekaterina_nov"
-        descriptionLabel.text = "Hello, World!"
         let image = UIImage(named: "exit_button")!
         logoutButton.setImage(image, for: .normal)
         
@@ -108,6 +109,18 @@ final class ProfileViewController: UIViewController {
     
     private func setupActions() {
         logoutButton.addTarget(self, action: #selector(didTapLogoutButton), for: .touchUpInside)
+    }
+    
+    private func updateProfileDetails(profile: Profile) {
+        nameLabel.text = profile.name.isEmpty
+            ? "Имя не указано"
+            : profile.name
+        loginNameLabel.text = profile.loginName.isEmpty
+            ? "@неизвестный_пользователь"
+            : profile.loginName
+        descriptionLabel.text = (profile.bio?.isEmpty ?? true)
+            ? "Профиль не заполнен"
+            : profile.bio
     }
 
     @objc
