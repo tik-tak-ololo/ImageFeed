@@ -16,7 +16,7 @@ struct OAuthTokenResponseBody: Codable {
 
 final class OAuth2Service {
     
-    private let tokenStorage = OAuth2TokenStorage()
+    private let tokenStorage = OAuth2TokenStorage.shared
     static let shared = OAuth2Service()
     
     private var task: URLSessionTask?
@@ -50,31 +50,22 @@ final class OAuth2Service {
             return
         }
         
-        let task = URLSession.shared.data(for: request) { [weak self] result in
+        let task = URLSession.shared.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
             
             guard let self = self else { return }
             
             switch result {
-            case .success(let data):
-                let decoder = JSONDecoder()
-                
-                do {
-                    let dataToken = try decoder.decode(OAuthTokenResponseBody.self, from: data)
-                    self.tokenStorage.token = dataToken.access_token
-                    completion(.success(dataToken.access_token))
-                } catch {
-                    print("Ошибка: \(error)")
-                    completion(.failure(error))
-                }
-                
+            case .success(let body):
+                self.tokenStorage.token = body.access_token
+                completion(.success(body.access_token))
+
             case .failure(let error):
-                print("Ошибка: \(error)")
+                print("[fetchOAuthToken]: Ошибка запроса: \(error.localizedDescription)")
                 completion(.failure(error))
             }
             
             self.task = nil
             self.lastCode = nil
-                
         }
         
         self.task = task
