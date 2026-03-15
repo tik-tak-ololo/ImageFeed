@@ -89,8 +89,10 @@ extension SplashViewController {
 
 extension SplashViewController: AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
-        vc.dismiss(animated: true)
+        vc.navigationController?.popViewController(animated: true)
         
-        switchToTabBarController()
+        if let token = OAuth2TokenStorage.shared.token {
+            fetchProfile(token: token)
+        }
     }
 }
