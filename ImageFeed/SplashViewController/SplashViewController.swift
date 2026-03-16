@@ -13,7 +13,11 @@ final class SplashViewController: UIViewController {
     private let storage = OAuth2TokenStorage.shared
     private let profileService = ProfileService.shared
     
-    private var imageView: UIImageView!
+    private var imageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -39,7 +43,7 @@ final class SplashViewController: UIViewController {
     private func setupImageView() {
         let imageSplashScreenLogo = UIImage(named: "splashScreenLogo")
 
-        imageView = UIImageView(image: imageSplashScreenLogo)
+        imageView.image = imageSplashScreenLogo
 
         imageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(imageView)
