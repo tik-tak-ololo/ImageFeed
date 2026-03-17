@@ -5,119 +5,9 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
-        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Auth View Controller-->
-        <scene sceneID="QiG-px-WNl">
-            <objects>
-                <viewController storyboardIdentifier="AuthViewController" id="YCn-yN-be5" customClass="AuthViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="YWB-ZH-1wk">
-                        <rect key="frame" x="0.0" y="0.0" width="420" height="912"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="auth_screen_logo" translatesAutoresizingMaskIntoConstraints="NO" id="Bbu-wf-Lss">
-                                <rect key="frame" x="180" y="426" width="60" height="60"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="60" id="9Bu-Dm-74D"/>
-                                    <constraint firstAttribute="width" constant="60" id="A9n-X6-9FC"/>
-                                </constraints>
-                            </imageView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aKd-x2-bxc">
-                                <rect key="frame" x="16" y="706" width="388" height="48"/>
-                                <color key="backgroundColor" name="YP White (iOS)"/>
-                                <accessibility key="accessibilityConfiguration" identifier="LoginButton"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="48" id="B9I-3D-Lkj"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
-                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                <state key="normal" title="Войти">
-                                    <color key="titleColor" name="YP Black (iOS)"/>
-                                </state>
-                                <connections>
-                                    <segue destination="dU2-gq-tLc" kind="show" identifier="ShowWebView" id="a5E-GA-AJ3"/>
-                                </connections>
-                            </button>
-                        </subviews>
-                        <viewLayoutGuide key="safeArea" id="BQc-cv-eo2"/>
-                        <color key="backgroundColor" name="YP Black (iOS)"/>
-                        <constraints>
-                            <constraint firstItem="aKd-x2-bxc" firstAttribute="leading" secondItem="BQc-cv-eo2" secondAttribute="leading" constant="16" id="Dgf-8o-XoE"/>
-                            <constraint firstItem="Bbu-wf-Lss" firstAttribute="centerY" secondItem="YWB-ZH-1wk" secondAttribute="centerY" id="Oxp-8i-kAs"/>
-                            <constraint firstItem="Bbu-wf-Lss" firstAttribute="centerX" secondItem="YWB-ZH-1wk" secondAttribute="centerX" id="bWi-On-8KK"/>
-                            <constraint firstItem="BQc-cv-eo2" firstAttribute="bottom" secondItem="aKd-x2-bxc" secondAttribute="bottom" constant="90" id="bcW-0c-fl8"/>
-                            <constraint firstItem="BQc-cv-eo2" firstAttribute="trailing" secondItem="aKd-x2-bxc" secondAttribute="trailing" constant="16" id="dmQ-MN-Mqt"/>
-                        </constraints>
-                    </view>
-                    <navigationItem key="navigationItem" id="xBv-Dm-Vl1"/>
-                    <connections>
-                        <outlet property="loginButton" destination="aKd-x2-bxc" id="3Gd-co-c26"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="nzf-oP-ddz" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-2239" y="-909"/>
-        </scene>
-        <!--Web View View Controller-->
-        <scene sceneID="Khr-dN-1r5">
-            <objects>
-                <viewController id="dU2-gq-tLc" customClass="WebViewViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="qyu-QP-bO3">
-                        <rect key="frame" x="0.0" y="0.0" width="420" height="844"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tjq-e3-QeQ">
-                                <rect key="frame" x="0.0" y="68" width="420" height="776"/>
-                                <color key="backgroundColor" name="YP White (iOS)"/>
-                                <wkWebViewConfiguration key="configuration">
-                                    <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
-                                    <wkPreferences key="preferences"/>
-                                </wkWebViewConfiguration>
-                            </wkWebView>
-                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="5k0-n9-ZQr">
-                                <rect key="frame" x="0.0" y="68" width="420" height="4"/>
-                                <color key="progressTintColor" name="YP Black (iOS)"/>
-                            </progressView>
-                        </subviews>
-                        <viewLayoutGuide key="safeArea" id="aWR-SG-haZ"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <constraints>
-                            <constraint firstItem="aWR-SG-haZ" firstAttribute="trailing" secondItem="5k0-n9-ZQr" secondAttribute="trailing" id="8se-hE-Oly"/>
-                            <constraint firstAttribute="bottom" secondItem="tjq-e3-QeQ" secondAttribute="bottom" id="BOK-YL-KsQ"/>
-                            <constraint firstItem="5k0-n9-ZQr" firstAttribute="top" secondItem="aWR-SG-haZ" secondAttribute="top" id="Imb-FQ-Mb0"/>
-                            <constraint firstItem="tjq-e3-QeQ" firstAttribute="top" secondItem="aWR-SG-haZ" secondAttribute="top" id="QAA-w8-A8J"/>
-                            <constraint firstItem="5k0-n9-ZQr" firstAttribute="leading" secondItem="aWR-SG-haZ" secondAttribute="leading" id="Qrq-PX-2hW"/>
-                            <constraint firstItem="tjq-e3-QeQ" firstAttribute="leading" secondItem="aWR-SG-haZ" secondAttribute="leading" id="Zaq-ZU-sZy"/>
-                            <constraint firstItem="aWR-SG-haZ" firstAttribute="trailing" secondItem="tjq-e3-QeQ" secondAttribute="trailing" id="bIg-Dt-dK0"/>
-                        </constraints>
-                    </view>
-                    <navigationItem key="navigationItem" id="4B1-ab-9jo"/>
-                    <connections>
-                        <outlet property="progressView" destination="5k0-n9-ZQr" id="u5V-cR-R6N"/>
-                        <outlet property="webView" destination="tjq-e3-QeQ" id="2Hc-IJ-COH"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="RSW-Hc-hCE" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-1423" y="-909"/>
-        </scene>
-        <!--Tab Bar Controller-->
-        <scene sceneID="Wke-HQ-Sbs">
-            <objects>
-                <tabBarController storyboardIdentifier="TabBarViewController" id="ThW-uG-RUN" customClass="TabBarController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
-                    <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="pKZ-r7-qut">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="49"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <color key="selectedImageTintColor" name="YP White (iOS)"/>
-                    </tabBar>
-                </tabBarController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="t9n-bA-4vB" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-3044" y="-161"/>
-        </scene>
         <!--ImageList-->
         <scene sceneID="tne-QT-ifu">
             <objects>
@@ -278,7 +168,6 @@
     </scenes>
     <resources>
         <image name="0" width="1600" height="1059"/>
-        <image name="auth_screen_logo" width="60" height="60"/>
         <image name="like_button_on" width="44" height="44"/>
         <image name="nav_back_button_white" width="24" height="24"/>
         <image name="sharing_button" width="50" height="50"/>
@@ -286,11 +175,5 @@
         <namedColor name="YP Black (iOS)">
             <color red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
-        <namedColor name="YP White (iOS)">
-            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
-        <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
     </resources>
 </document>

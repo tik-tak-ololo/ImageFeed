@@ -19,8 +19,18 @@ protocol WebViewViewControllerDelegate: AnyObject {
 
 final class WebViewViewController: UIViewController {
     
-    @IBOutlet private var webView: WKWebView!
-    @IBOutlet var progressView: UIProgressView!
+    private var webView: WKWebView = {
+        let webView = WKWebView()
+        webView.translatesAutoresizingMaskIntoConstraints = false
+        webView.backgroundColor = .ypWhiteIOS
+        return webView
+    }()
+    private var progressView: UIProgressView = {
+        let progressView = UIProgressView(progressViewStyle: .default)
+        progressView.tintColor = .ypBlackIOS
+        progressView.translatesAutoresizingMaskIntoConstraints = false
+        return progressView
+    }()
     
     weak var delegate: WebViewViewControllerDelegate?
     
@@ -29,9 +39,37 @@ final class WebViewViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupView()
+        setupSubviews()
+        setupConstraints()
+        
         webView.navigationDelegate = self
         
         loadAuthView()
+    }
+    
+    private func setupView() {
+        view.backgroundColor = .ypWhiteIOS
+    }
+    
+    private func setupSubviews() {
+        view.addSubview(webView)
+        view.addSubview(progressView)
+    }
+    
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            
+            webView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            webView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            progressView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            progressView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            progressView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
+
+        ])
     }
     
     private func loadAuthView() {
