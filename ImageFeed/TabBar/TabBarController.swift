@@ -15,10 +15,12 @@ final class TabBarController: UITabBarController {
     }
 
     private func setupTabs() {
-        let storyboard = UIStoryboard(name: "Main", bundle: .main)
 
-        let imagesListViewController = storyboard.instantiateViewController(
-            withIdentifier: "ImagesListViewController"
+        let imagesListViewController = ImagesListViewController()
+        imagesListViewController.tabBarItem = UITabBarItem(
+            title: "", // если подпись не нужна, оставьте пустую строку
+            image: UIImage(named: "tab_editorial_active"),
+            selectedImage: nil
         )
 
         let profileViewController = ProfileViewController()

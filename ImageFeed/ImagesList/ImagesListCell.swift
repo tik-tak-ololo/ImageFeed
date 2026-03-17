@@ -11,7 +11,64 @@ final class ImagesListCell: UITableViewCell {
     
     static let reuseIdentifier = "ImagesListCell"
     
-    @IBOutlet var cellImage: UIImageView!
-    @IBOutlet var likeButton: UIButton!
-    @IBOutlet var dateLabel: UILabel!
+    let cellImage: UIImageView = {
+        let image = UIImageView()
+        image.layer.cornerRadius = 16
+        image.layer.masksToBounds = true
+        image.translatesAutoresizingMaskIntoConstraints = false
+        return image
+    }()
+    
+    let dateLabel: UILabel = {
+        let dateLabel = UILabel()
+        dateLabel.translatesAutoresizingMaskIntoConstraints = false
+        dateLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+        dateLabel.textColor = .ypWhiteIOS
+        return dateLabel
+    }()
+    let likeButton: UIButton = {
+        let likeButton = UIButton(type: .custom)
+        likeButton.translatesAutoresizingMaskIntoConstraints = false
+        return likeButton
+    }()
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setup()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setup()
+    }
+
+    private func setup() {
+        selectionStyle = .none
+        backgroundColor = .clear
+
+        cellImage.translatesAutoresizingMaskIntoConstraints = false
+        dateLabel.translatesAutoresizingMaskIntoConstraints = false
+        likeButton.translatesAutoresizingMaskIntoConstraints = false
+
+        contentView.addSubview(cellImage)
+        contentView.addSubview(dateLabel)
+        contentView.addSubview(likeButton)
+
+        NSLayoutConstraint.activate([
+            cellImage.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
+            cellImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            cellImage.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            cellImage.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
+
+            dateLabel.leadingAnchor.constraint(equalTo: cellImage.leadingAnchor, constant: 8),
+            dateLabel.bottomAnchor.constraint(equalTo: cellImage.bottomAnchor, constant: -8),
+            dateLabel.trailingAnchor.constraint(lessThanOrEqualTo: cellImage.trailingAnchor),
+
+            likeButton.widthAnchor.constraint(equalToConstant: 44),
+            likeButton.heightAnchor.constraint(equalToConstant: 44),
+            likeButton.trailingAnchor.constraint(equalTo: cellImage.trailingAnchor),
+            likeButton.topAnchor.constraint(equalTo: cellImage.topAnchor)
+        ])
+    }
+
 }
