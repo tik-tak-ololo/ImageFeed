@@ -26,6 +26,7 @@ final class ImagesListCell: UITableViewCell {
         dateLabel.textColor = .ypWhiteIOS
         return dateLabel
     }()
+    
     let likeButton: UIButton = {
         let likeButton = UIButton(type: .custom)
         likeButton.translatesAutoresizingMaskIntoConstraints = false
@@ -34,26 +35,30 @@ final class ImagesListCell: UITableViewCell {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setup()
+        setupView()
+        setupSubviews()
+        setupConstraints()
     }
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        setup()
+        setupView()
+        setupSubviews()
+        setupConstraints()
     }
-
-    private func setup() {
+    
+    private func setupView() {
         selectionStyle = .none
         backgroundColor = .clear
-
-        cellImage.translatesAutoresizingMaskIntoConstraints = false
-        dateLabel.translatesAutoresizingMaskIntoConstraints = false
-        likeButton.translatesAutoresizingMaskIntoConstraints = false
-
+    }
+    
+    private func setupSubviews() {
         contentView.addSubview(cellImage)
         contentView.addSubview(dateLabel)
         contentView.addSubview(likeButton)
+    }
 
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             cellImage.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
             cellImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),

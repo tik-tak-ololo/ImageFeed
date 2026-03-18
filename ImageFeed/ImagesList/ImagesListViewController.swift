@@ -9,7 +9,18 @@ import UIKit
 
 final class ImagesListViewController: UIViewController {
     
-    private let tableView = UITableView(frame: .zero, style: .plain)
+    private let tableView = {
+        let tableView = UITableView(frame: .zero, style: .plain)
+
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+
+        tableView.rowHeight = 200
+        tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
+        
+        tableView.backgroundColor = .ypBlackIOS
+        
+        return tableView
+    }()
     
     let photosName: [String] = Array(0..<20).map{ "\($0)" }
     
@@ -23,6 +34,8 @@ final class ImagesListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
+        setupSubviews()
+        setupConstraints()
         setupTableView()
     }
     
@@ -30,20 +43,18 @@ final class ImagesListViewController: UIViewController {
         view.backgroundColor = .ypBlackIOS
     }
     
+    private func setupSubviews() {
+        view.addSubview(tableView)
+    }
+    
     private func setupTableView() {
-        // Регистрация ячейки
-        tableView.register(ImagesListCell.self, forCellReuseIdentifier: ImagesListCell.reuseIdentifier)
-
-        tableView.translatesAutoresizingMaskIntoConstraints = false
+        
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.rowHeight = 200
-        tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
-        
-        tableView.backgroundColor = .ypBlackIOS
-
-        view.addSubview(tableView)
-
+        tableView.register(ImagesListCell.self, forCellReuseIdentifier: ImagesListCell.reuseIdentifier)
+    }
+    
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
