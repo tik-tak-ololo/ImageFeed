@@ -66,12 +66,7 @@ final class ImagesListViewController: UIViewController {
     // Заменяем prepare(for:sender:) на явную навигацию кодом
     func showSingleImage(at indexPath: IndexPath) {
         
-        let storyboard = UIStoryboard(name: "Main", bundle: .main)
-        guard let singleImageViewController = storyboard.instantiateViewController(withIdentifier: "SingleImageViewController") as? SingleImageViewController else {
-            assertionFailure("Не удалось найти SingleImageViewController по идентификатору")
-            return
-        }
-        
+        let singleImageViewController = SingleImageViewController();
         let image = UIImage(named: photosName[indexPath.row])
         singleImageViewController.image = image
         present(singleImageViewController, animated: true)

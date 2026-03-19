@@ -43,8 +43,6 @@ final class ProfileViewController: UIViewController {
     private let logoutButton: UIButton = {
         let logoutButton = UIButton(type: .custom)
         logoutButton.translatesAutoresizingMaskIntoConstraints = false
-        logoutButton.setTitle("Logout", for: .normal)
-        logoutButton.setTitleColor(.ypRedIOS, for: .normal)
         return logoutButton
     }()
     
