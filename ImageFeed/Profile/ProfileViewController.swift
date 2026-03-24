@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
     
@@ -42,10 +43,10 @@ final class ProfileViewController: UIViewController {
     private let logoutButton: UIButton = {
         let logoutButton = UIButton(type: .custom)
         logoutButton.translatesAutoresizingMaskIntoConstraints = false
-        logoutButton.setTitle("Logout", for: .normal)
-        logoutButton.setTitleColor(.ypRedIOS, for: .normal)
         return logoutButton
     }()
+    
+    private var profileImageServiceObserver: NSObjectProtocol?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,7 +56,20 @@ final class ProfileViewController: UIViewController {
         setupConstraints()
         setupContent()
         setupActions()
-
+        
+        if let profile = ProfileService.shared.profile {
+            updateProfileDetails(profile: profile)
+        }
+        profileImageServiceObserver = NotificationCenter.default
+            .addObserver(
+                forName: ProfileImageService.didChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                self.updateAvatar()
+            }
+        updateAvatar()
     }
     
     private func setupView() {
@@ -97,17 +111,71 @@ final class ProfileViewController: UIViewController {
     }
     
     private func setupContent() {
-        avatarImageView.image = UIImage(named: "photo")
-        nameLabel.text = "Екатерина Новикова"
-        loginNameLabel.text = "@ekaterina_nov"
-        descriptionLabel.text = "Hello, World!"
-        let image = UIImage(named: "exit_button")!
+        guard let image = UIImage(named: "exit_button") else { return }
         logoutButton.setImage(image, for: .normal)
         
     }
     
     private func setupActions() {
         logoutButton.addTarget(self, action: #selector(didTapLogoutButton), for: .touchUpInside)
+    }
+    
+    private func updateProfileDetails(profile: Profile) {
+        nameLabel.text = profile.name.isEmpty
+            ? "Имя не указано"
+            : profile.name
+        loginNameLabel.text = profile.loginName.isEmpty
+            ? "@неизвестный_пользователь"
+            : profile.loginName
+        descriptionLabel.text = (profile.bio?.isEmpty ?? true)
+            ? "Профиль не заполнен"
+            : profile.bio
+    }
+    
+    private func updateAvatar() {
+        guard
+            let profileImageURL = ProfileImageService.shared.avatarURL,
+            let imageUrl = URL(string: profileImageURL)
+        else { return }
+        
+        print("imageUrl: \(imageUrl)")
+
+        let placeholderImage = UIImage(systemName: "person.circle.fill")?
+            .withTintColor(.lightGray, renderingMode: .alwaysOriginal)
+            .withConfiguration(UIImage.SymbolConfiguration(pointSize: 70, weight: .regular, scale: .large))
+
+        let processor = RoundCornerImageProcessor(cornerRadius: 35) // Радиус для круга
+        avatarImageView.kf.indicatorType = .activity
+        avatarImageView.kf.setImage(
+            with: imageUrl,
+            placeholder: placeholderImage,
+            options: [
+                .processor(processor),
+                .scaleFactor(UIScreen.main.scale), // Учитываем масштаб экрана
+                .cacheOriginalImage, // Кэшируем оригинал
+                .forceRefresh // Игнорируем кэш, чтобы обновить
+            ]) { result in
+
+                switch result {
+                    // Успешная загрузка
+                case .success(let value):
+                    // Картинка
+                    print(value.image)
+
+                    // Откуда картинка загружена:
+                    // - .none — из сети.
+                    // - .memory — из кэша оперативной памяти.
+                    // - .disk — из дискового кэша.
+                    print(value.cacheType)
+
+                    // Информация об источнике.
+                    print(value.source)
+
+                    // В случае ошибки
+                case .failure(let error):
+                    print(error)
+                }
+            }
     }
 
     @objc

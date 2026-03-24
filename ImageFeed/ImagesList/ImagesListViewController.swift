@@ -9,9 +9,18 @@ import UIKit
 
 final class ImagesListViewController: UIViewController {
     
-    let showSingleImageSegueIdentifier = "ShowSingleImage"
+    private let tableView = {
+        let tableView = UITableView(frame: .zero, style: .plain)
 
-    @IBOutlet private var tableView: UITableView!
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+
+        tableView.rowHeight = 200
+        tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
+        
+        tableView.backgroundColor = .ypBlackIOS
+        
+        return tableView
+    }()
     
     let photosName: [String] = Array(0..<20).map{ "\($0)" }
     
@@ -24,29 +33,43 @@ final class ImagesListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupView()
+        setupSubviews()
+        setupConstraints()
+        setupTableView()
+    }
+    
+    private func setupView() {
+        view.backgroundColor = .ypBlackIOS
+    }
+    
+    private func setupSubviews() {
+        view.addSubview(tableView)
+    }
+    
+    private func setupTableView() {
         
         tableView.delegate = self
         tableView.dataSource = self
-        
-        tableView.rowHeight = 200
-        tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
+        tableView.register(ImagesListCell.self, forCellReuseIdentifier: ImagesListCell.reuseIdentifier)
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == showSingleImageSegueIdentifier { // 1
-            guard
-                let viewController = segue.destination as? SingleImageViewController, // 2
-                let indexPath = sender as? IndexPath // 3
-            else {
-                assertionFailure("Invalid segue destination") // 4
-                return
-            }
-
-            let image = UIImage(named: photosName[indexPath.row]) // 5
-            viewController.image = image // 6
-        } else {
-            super.prepare(for: segue, sender: sender) // 7
-        }
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+    }
+    
+    // Заменяем prepare(for:sender:) на явную навигацию кодом
+    func showSingleImage(at indexPath: IndexPath) {
+        
+        let singleImageViewController = SingleImageViewController();
+        let image = UIImage(named: photosName[indexPath.row])
+        singleImageViewController.image = image
+        present(singleImageViewController, animated: true)
     }
     
     func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
