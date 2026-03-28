@@ -102,6 +102,12 @@ final class ImagesListService {
                 let newPhotos = photoResults.map { $0.getPhoto(dateFormatter: self.dateFormatter) }
                 photos.append(contentsOf: newPhotos)
                 lastLoadedPage = nextPage
+                
+                NotificationCenter.default.post(
+                    name: ImagesListService.didChangeNotification,
+                    object: self,
+                    userInfo: ["photos": self.photos]
+                )
 
             case .failure(let error):
                 print("[fetchOAuthToken]: Ошибка запроса: \(error.localizedDescription)")
