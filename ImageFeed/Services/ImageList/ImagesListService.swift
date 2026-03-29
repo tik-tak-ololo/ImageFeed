@@ -100,7 +100,7 @@ final class ImagesListService {
         
         guard let request = makePhotosNextPageRequest(nextPage: nextPage, perPage: Const.perPage, token: token) else {
             completion(.failure(NetworkError.invalidRequest))
-            print("Ошибка создания запроса: \(NetworkError.invalidRequest)")
+            print("[fetchPhotosNextPage]: Ошибка создания запроса: \(NetworkError.invalidRequest)")
             return
         }
         
@@ -119,9 +119,7 @@ final class ImagesListService {
                     object: self,
                     userInfo: ["photos": self.photos]
                 )
-                
                 completion(.success("Загружено \(newPhotos.count) изображений! Текущий размер списка: \(self.photos.count) изображений!"))
-
             case .failure(let error):
                 print("[fetchPhotosNextPage]: Ошибка запроса: \(error.localizedDescription)")
                 completion(.failure(error))
@@ -152,7 +150,7 @@ final class ImagesListService {
         
         guard let request = makeChangeLikeRequest(photoId: photoId, isLike: isLike, token: token) else {
             completion(.failure(NetworkError.invalidRequest))
-            print("Ошибка создания запроса: \(NetworkError.invalidRequest)")
+            print("[changeLike]: Ошибка создания запроса: \(NetworkError.invalidRequest)")
             return
         }
         

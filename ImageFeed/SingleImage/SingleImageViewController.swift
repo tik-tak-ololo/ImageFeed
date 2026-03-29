@@ -108,8 +108,7 @@ final class SingleImageViewController: UIViewController {
     
     @objc private func didTapShareButton(_ sender: UIButton) {
         guard let image = imageView.image else {
-            // No image to share; optionally show a simple alert for the user
-            let alert = UIAlertController(title: "Nothing to Share", message: "Image hasn't loaded yet.", preferredStyle: .alert)
+            let alert = UIAlertController(title: "Нечем делиться.", message: "Изображение не загрузилось.", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             present(alert, animated: true)
             return
@@ -139,7 +138,6 @@ final class SingleImageViewController: UIViewController {
     }
     
     func loadImage() {
-        
         UIBlockingProgressHUD.show()
         imageView.kf.setImage(with: imageURL) { [weak self] result in
             UIBlockingProgressHUD.dismiss()
@@ -150,9 +148,11 @@ final class SingleImageViewController: UIViewController {
                 self.rescaleAndCenterImageInScrollView(image: imageResult.image)
                 scrollView.minimumZoomScale = 0.1
                 scrollView.maximumZoomScale = 1.25
-            case .failure:
-                //self.showError()
-                print("Ошибка загрузки изображения!")
+            case .failure(let error):
+                let alert = UIAlertController(title: "Ошибка загрузки изображения.", message: error.localizedDescription, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                present(alert, animated: true)
+                return
             }
         }
 

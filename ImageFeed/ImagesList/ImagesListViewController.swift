@@ -25,6 +25,13 @@ final class ImagesListViewController: UIViewController {
         return tableView
     }()
     
+    private lazy var dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        formatter.timeStyle = .none
+        return formatter
+    }()
+    
     var photos: [Photo] = []
     let imagesListService = ImagesListService()
     
@@ -101,6 +108,24 @@ final class ImagesListViewController: UIViewController {
         if let imagesListServiceObserver {
             NotificationCenter.default.removeObserver(imagesListServiceObserver)
         }
+    }
+    
+    func configureCell(imageListCell: ImagesListCell, with photo: Photo) {
+
+        imageListCell.cellImage.kf.indicatorType = .activity
+        let placeholder = UIImage(named: "placeholder_image")
+        if let imageURL = URL(string: photo.smallImageURL) {
+            imageListCell.cellImage.kf.setImage(
+                with: imageURL,
+                placeholder: placeholder,
+                options: [.transition(.fade(0.2)), .cacheOriginalImage])
+        }
+        
+        imageListCell.dateLabel.text = photo.createdAt != nil ? dateFormatter.string(from: photo.createdAt!) : ""
+        
+        let likeImage = photo.isLiked ? UIImage(named: "like_button_on") : UIImage(named: "like_button_off")
+        imageListCell.likeButton.setImage(likeImage, for: .normal)
+        
     }
 
 }
