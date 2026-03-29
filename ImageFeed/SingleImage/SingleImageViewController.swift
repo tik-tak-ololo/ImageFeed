@@ -6,19 +6,11 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class SingleImageViewController: UIViewController {
-
-    var image: UIImage? {
-        didSet {
-            guard isViewLoaded else { return }
-            imageView.image = image
-            
-            if let image = image {
-                rescaleAndCenterImageInScrollView(image: image)
-            }
-        }
-    }
+    
+    var imageURL: URL?
     
     var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -55,16 +47,7 @@ final class SingleImageViewController: UIViewController {
         setupScrollView()
         setupContent()
         setupActions()
-        
-        imageView.image = image
-        
-        if let image = image {
-            imageView.frame.size = image.size
-            rescaleAndCenterImageInScrollView(image: image)
-        }
-        
-        scrollView.minimumZoomScale = 0.1
-        scrollView.maximumZoomScale = 1.25
+        loadImage()
     }
     
     private func setupView() {
@@ -124,7 +107,13 @@ final class SingleImageViewController: UIViewController {
     }
     
     @objc private func didTapShareButton(_ sender: UIButton) {
-        guard let image else { return }
+        guard let image = imageView.image else {
+            // No image to share; optionally show a simple alert for the user
+            let alert = UIAlertController(title: "Nothing to Share", message: "Image hasn't loaded yet.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+            return
+        }
         let share = UIActivityViewController(
             activityItems: [image],
             applicationActivities: nil
@@ -147,6 +136,26 @@ final class SingleImageViewController: UIViewController {
         let x = (newContentSize.width - visibleRectSize.width) / 2
         let y = (newContentSize.height - visibleRectSize.height) / 2
         scrollView.setContentOffset(CGPoint(x: x, y: y), animated: false)
-    } 
+    }
+    
+    func loadImage() {
+        
+        UIBlockingProgressHUD.show()
+        imageView.kf.setImage(with: imageURL) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            
+            guard let self = self else { return }
+            switch result {
+            case .success(let imageResult):
+                self.rescaleAndCenterImageInScrollView(image: imageResult.image)
+                scrollView.minimumZoomScale = 0.1
+                scrollView.maximumZoomScale = 1.25
+            case .failure:
+                //self.showError()
+                print("Ошибка загрузки изображения!")
+            }
+        }
+
+    }
 }
 

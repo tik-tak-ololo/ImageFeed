@@ -86,33 +86,8 @@ final class ImagesListViewController: UIViewController {
         guard let url else { return }
         
         let singleImageViewController = SingleImageViewController()
+        singleImageViewController.imageURL = url
         present(singleImageViewController, animated: true)
-        
-        let resource = KF.ImageResource(downloadURL: url)
-
-        KingfisherManager.shared.retrieveImage(
-            with: resource,
-            options: [
-                .cacheOriginalImage,
-                .transition(.fade(0.2))
-            ]
-        ) { [weak singleImageViewController] result in
-            
-            switch result {
-            case .success(let value):
-                DispatchQueue.main.async {
-                    singleImageViewController?.scrollView.minimumZoomScale = 1
-                    singleImageViewController?.scrollView.maximumZoomScale = 1
-                    singleImageViewController?.image = value.image
-                    singleImageViewController?.imageView.frame.size = value.image.size
-                    singleImageViewController?.rescaleAndCenterImageInScrollView(image: value.image)
-                    singleImageViewController?.scrollView.minimumZoomScale = 0.1
-                    singleImageViewController?.scrollView.maximumZoomScale = 1.25
-                }
-            case .failure(let error):
-                print(error)
-            }
-        }
     }
 
     func updateTableViewAnimated() {

@@ -32,6 +32,8 @@ struct PhotoResult: Decodable {
 
 struct UrlsResult: Decodable {
     let thumb: String
+    let small: String
+    let regular: String
     let full: String
 }
 
@@ -55,6 +57,8 @@ extension PhotoResult {
             createdAt: date,
             welcomeDescription: description ?? altDescription,
             thumbImageURL: urls.thumb,
+            smallImageURL: urls.small,
+            regularImageURL: urls.regular,
             largeImageURL: urls.full,
             isLiked: likedByUser
         )

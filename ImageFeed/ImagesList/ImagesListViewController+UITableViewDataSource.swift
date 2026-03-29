@@ -35,9 +35,9 @@ extension ImagesListViewController: UITableViewDataSource {
 
         imageListCell.cellImage.kf.indicatorType = .activity
         let placeholder = UIImage(named: "placeholder_image")
-        if let thumbURL = URL(string: photo.thumbImageURL) {
+        if let imageURL = URL(string: photo.smallImageURL) {
             imageListCell.cellImage.kf.setImage(
-                with: thumbURL,
+                with: imageURL,
                 placeholder: placeholder,
                 options: [.transition(.fade(0.2)), .cacheOriginalImage])
         }
