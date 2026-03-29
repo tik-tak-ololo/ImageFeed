@@ -181,6 +181,26 @@ final class ProfileViewController: UIViewController {
     @objc
     private func didTapLogoutButton() {
         
+        ProfileLogoutService.shared.logout()
+        self.dismiss(animated: true)
+        switchToSplashViewController()
+        
+    }
+    
+    private func switchToSplashViewController() {
+        
+        // Получаем активную сцену и её ключевое окно
+         guard let window = UIApplication.shared.connectedScenes
+             .compactMap({ $0 as? UIWindowScene })
+             .flatMap({ $0.windows })
+             .first(where: { $0.isKeyWindow })
+         else {
+             assertionFailure("Invalid window configuration")
+             return
+         }
+        
+        let splashViewController = SplashViewController()
+        window.rootViewController = splashViewController
     }
     
 }
