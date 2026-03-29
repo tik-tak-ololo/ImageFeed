@@ -35,6 +35,14 @@ struct UrlsResult: Decodable {
     let full: String
 }
 
+struct ChangeLikeResult: Decodable {
+    let likedByUser: Bool
+    
+    enum CodingKeys: String, CodingKey {
+        case likedByUser = "liked_by_user"
+    }
+}
+
 extension PhotoResult {
 
     func getPhoto(dateFormatter: ISO8601DateFormatter) -> Photo {
@@ -58,6 +66,11 @@ extension PhotoResult {
 }
 
 final class ImagesListService {
+    
+    private enum Const {
+        static let perPage: Int = 10
+    }
+    
     private(set) var photos: [Photo] = []
     private var task: URLSessionTask?
     private var lastLoadedPage: Int?
@@ -68,7 +81,6 @@ final class ImagesListService {
     init() {
         self.dateFormatter = ISO8601DateFormatter()
     }
-    
     
     func fetchPhotosNextPage(completion: @escaping (Result<String, Error>) -> Void) {
         
@@ -85,9 +97,8 @@ final class ImagesListService {
         }
         
         let nextPage = (lastLoadedPage ?? 0) + 1
-        let perPage = 10                                                                                // TODO: ???
         
-        guard let request = makePhotosNextPageRequest(nextPage: nextPage, perPage: perPage, token: token) else {
+        guard let request = makePhotosNextPageRequest(nextPage: nextPage, perPage: Const.perPage, token: token) else {
             completion(.failure(NetworkError.invalidRequest))
             print("Ошибка создания запроса: \(NetworkError.invalidRequest)")
             return
@@ -125,6 +136,50 @@ final class ImagesListService {
 
     }
     
+    func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<Void, Error>) -> Void) {
+        
+        assert(Thread.isMainThread)
+        
+        if task != nil {
+            completion(.failure(NetworkError.request​In​Progress))
+            return
+        }
+        
+        guard let token = OAuth2TokenStorage.shared.token else {
+            completion(.failure(NSError(domain: "ImagesListService", code: 401, userInfo: [NSLocalizedDescriptionKey: "Authorization token missing"])))
+            return
+        }
+        
+        guard let request = makeChangeLikeRequest(photoId: photoId, isLike: isLike, token: token) else {
+            completion(.failure(NetworkError.invalidRequest))
+            print("Ошибка создания запроса: \(NetworkError.invalidRequest)")
+            return
+        }
+        
+        let task = URLSession.shared.objectTask(for: request) { [weak self] (result: Result<ChangeLikeResult, Error>) in
+            
+            guard let self = self else { return }
+            
+            switch result {
+            case .success:
+                if let index = self.photos.firstIndex(where: { $0.id == photoId }) {
+                    self.photos[index].isLiked.toggle()
+                }
+                completion(.success(()))
+            case .failure(let error):
+                print("[changeLike]: Ошибка запроса: \(error.localizedDescription)")
+                completion(.failure(error))
+            }
+            
+            self.task = nil
+        }
+        
+        self.task = task
+        
+        task.resume()
+        
+    }
+    
     private func makePhotosNextPageRequest(nextPage: Int, perPage: Int, token: String) -> URLRequest? {
         
         guard var urlComponents = URLComponents(string: "\(Constants.defaultBaseURL)/photos") else {
@@ -144,6 +199,19 @@ final class ImagesListService {
         request.httpMethod = "GET"
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         return request
+    }
+    
+    private func makeChangeLikeRequest(photoId: String, isLike: Bool, token: String) -> URLRequest? {
+        
+        guard let url = URL(string: "\(Constants.defaultBaseURL)/photos/\(photoId)/like") else {
+            return nil
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = isLike ? "POST" : "DELETE"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        return request
+        
     }
 }
     

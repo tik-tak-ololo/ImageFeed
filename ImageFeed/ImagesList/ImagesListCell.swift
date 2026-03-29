@@ -31,6 +31,7 @@ final class ImagesListCell: UITableViewCell {
     let likeButton: UIButton = {
         let likeButton = UIButton(type: .custom)
         likeButton.translatesAutoresizingMaskIntoConstraints = false
+        likeButton.accessibilityIdentifier = "likeButton"
         return likeButton
     }()
 
@@ -46,6 +47,7 @@ final class ImagesListCell: UITableViewCell {
         setupView()
         setupSubviews()
         setupConstraints()
+        setupActions()
     }
     
     override func prepareForReuse() {
@@ -82,6 +84,14 @@ final class ImagesListCell: UITableViewCell {
             likeButton.trailingAnchor.constraint(equalTo: cellImage.trailingAnchor),
             likeButton.topAnchor.constraint(equalTo: cellImage.topAnchor)
         ])
+    }
+    
+    private func setupActions() {
+        likeButton.addTarget(self, action: #selector(likeButtonClicked(_:)), for: .touchUpInside)
+    }
+    
+    @objc private func likeButtonClicked(_ sender: UIButton) {
+
     }
 
 }
