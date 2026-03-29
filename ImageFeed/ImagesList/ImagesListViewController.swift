@@ -6,8 +6,11 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ImagesListViewController: UIViewController {
+    
+    private var imagesListServiceObserver: NSObjectProtocol?
     
     private let tableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
@@ -22,7 +25,8 @@ final class ImagesListViewController: UIViewController {
         return tableView
     }()
     
-    let photosName: [String] = Array(0..<20).map{ "\($0)" }
+    var photos: [Photo] = []
+    let imagesListService = ImagesListService()
     
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -37,6 +41,17 @@ final class ImagesListViewController: UIViewController {
         setupSubviews()
         setupConstraints()
         setupTableView()
+        
+        imagesListServiceObserver = NotificationCenter.default.addObserver(
+            forName: ImagesListService.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            self.updateTableViewAnimated()
+        }
+        
+        imagesListService.fetchPhotosNextPage(){ result in}
     }
     
     private func setupView() {
@@ -66,25 +81,53 @@ final class ImagesListViewController: UIViewController {
     // Заменяем prepare(for:sender:) на явную навигацию кодом
     func showSingleImage(at indexPath: IndexPath) {
         
-        let singleImageViewController = SingleImageViewController();
-        let image = UIImage(named: photosName[indexPath.row])
-        singleImageViewController.image = image
+        let photo = photos[indexPath.row]
+        let url = URL(string: photo.largeImageURL)
+        guard let url else { return }
+        
+        let singleImageViewController = SingleImageViewController()
         present(singleImageViewController, animated: true)
+        
+        let resource = KF.ImageResource(downloadURL: url)
+
+        KingfisherManager.shared.retrieveImage(
+            with: resource,
+            options: [
+                .cacheOriginalImage,
+                .transition(.fade(0.2))
+            ]
+        ) { [weak singleImageViewController] result in
+            
+            switch result {
+            case .success(let value):
+                DispatchQueue.main.async {
+                    singleImageViewController?.image = value.image
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+
+    func updateTableViewAnimated() {
+        let oldCount = photos.count
+        let newCount = imagesListService.photos.count
+        photos = imagesListService.photos
+        if oldCount != newCount {
+            tableView.performBatchUpdates {
+                let indexPaths = (oldCount..<newCount).map { i in
+                    IndexPath(row: i, section: 0)
+                }
+                tableView.insertRows(at: indexPaths, with: .automatic)
+            } completion: { _ in }
+        }
     }
     
-    func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
-        guard let image = UIImage(named: photosName[indexPath.row]) else {
-            return
+    deinit {
+        if let imagesListServiceObserver {
+            NotificationCenter.default.removeObserver(imagesListServiceObserver)
         }
-
-        cell.cellImage.image = image
-        cell.dateLabel.text = dateFormatter.string(from: Date())
-
-        let isLiked = indexPath.row % 2 == 0
-        let likeImage = isLiked ? UIImage(named: "like_button_on") : UIImage(named: "like_button_off")
-        cell.likeButton.setImage(likeImage, for: .normal)
     }
-
 
 }
 

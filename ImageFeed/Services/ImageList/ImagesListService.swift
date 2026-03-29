@@ -75,7 +75,7 @@ final class ImagesListService {
         assert(Thread.isMainThread)
         
         if task != nil {
-            completion(.failure(NetworkError.invalidRequest))
+            completion(.failure(NetworkError.request​In​Progress))
             return
         }
         
@@ -108,9 +108,11 @@ final class ImagesListService {
                     object: self,
                     userInfo: ["photos": self.photos]
                 )
+                
+                completion(.success("Загружено \(newPhotos.count) изображений! Текущий размер списка: \(self.photos.count) изображений!"))
 
             case .failure(let error):
-                print("[fetchOAuthToken]: Ошибка запроса: \(error.localizedDescription)")
+                print("[fetchPhotosNextPage]: Ошибка запроса: \(error.localizedDescription)")
                 completion(.failure(error))
             }
             

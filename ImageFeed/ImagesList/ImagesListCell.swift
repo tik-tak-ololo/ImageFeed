@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ImagesListCell: UITableViewCell {
     
@@ -45,6 +46,13 @@ final class ImagesListCell: UITableViewCell {
         setupView()
         setupSubviews()
         setupConstraints()
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        cellImage.kf.cancelDownloadTask()
+        cellImage.image = nil
+        cellImage.kf.indicatorType = .none
     }
     
     private func setupView() {
