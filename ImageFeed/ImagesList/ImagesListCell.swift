@@ -11,6 +11,7 @@ import Kingfisher
 final class ImagesListCell: UITableViewCell {
     
     static let reuseIdentifier = "ImagesListCell"
+    weak var delegate: ImagesListCellDelegate?
     
     let cellImage: UIImageView = {
         let image = UIImageView()
@@ -32,14 +33,23 @@ final class ImagesListCell: UITableViewCell {
         let likeButton = UIButton(type: .custom)
         likeButton.translatesAutoresizingMaskIntoConstraints = false
         likeButton.accessibilityIdentifier = "likeButton"
+        likeButton.setImage(UIImage(named: "like_button_off"), for: .normal)
         return likeButton
     }()
+    
+    func setIsLiked(_ isLiked: Bool) {
+        let imageName = isLiked ? "like_button_on" : "like_button_off"
+        let image = UIImage(named: imageName)
+        likeButton.setImage(image, for: .normal)
+        likeButton.accessibilityValue = isLiked ? "liked" : "not_liked"
+    }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupView()
         setupSubviews()
         setupConstraints()
+        setupActions()
     }
 
     required init?(coder: NSCoder) {
@@ -91,7 +101,6 @@ final class ImagesListCell: UITableViewCell {
     }
     
     @objc private func likeButtonClicked(_ sender: UIButton) {
-
+        delegate?.imageListCellDidTapLike(self)
     }
-
 }

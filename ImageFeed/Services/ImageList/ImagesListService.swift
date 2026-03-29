@@ -36,11 +36,7 @@ struct UrlsResult: Decodable {
 }
 
 struct ChangeLikeResult: Decodable {
-    let likedByUser: Bool
-    
-    enum CodingKeys: String, CodingKey {
-        case likedByUser = "liked_by_user"
-    }
+    let photo: PhotoResult
 }
 
 extension PhotoResult {

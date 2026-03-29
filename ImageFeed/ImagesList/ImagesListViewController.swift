@@ -12,7 +12,7 @@ final class ImagesListViewController: UIViewController {
     
     private var imagesListServiceObserver: NSObjectProtocol?
     
-    private let tableView = {
+    let tableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
 
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -101,7 +101,13 @@ final class ImagesListViewController: UIViewController {
             switch result {
             case .success(let value):
                 DispatchQueue.main.async {
+                    singleImageViewController?.scrollView.minimumZoomScale = 1
+                    singleImageViewController?.scrollView.maximumZoomScale = 1
                     singleImageViewController?.image = value.image
+                    singleImageViewController?.imageView.frame.size = value.image.size
+                    singleImageViewController?.rescaleAndCenterImageInScrollView(image: value.image)
+                    singleImageViewController?.scrollView.minimumZoomScale = 0.1
+                    singleImageViewController?.scrollView.maximumZoomScale = 1.25
                 }
             case .failure(let error):
                 print(error)

@@ -15,6 +15,7 @@ extension ImagesListViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
         let cell = tableView.dequeueReusableCell(withIdentifier: ImagesListCell.reuseIdentifier, for: indexPath)
 
         guard let imageListCell = cell as? ImagesListCell else {
@@ -24,6 +25,8 @@ extension ImagesListViewController: UITableViewDataSource {
         let photo = photos[indexPath.row]
         
         configureCell(imageListCell: imageListCell, with: photo)
+        
+        imageListCell.delegate = self
         
         return imageListCell
     }
