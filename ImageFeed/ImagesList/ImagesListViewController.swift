@@ -121,7 +121,9 @@ final class ImagesListViewController: UIViewController {
                 options: [.transition(.fade(0.2)), .cacheOriginalImage])
         }
         
-        imageListCell.dateLabel.text = photo.createdAt != nil ? dateFormatter.string(from: photo.createdAt!) : ""
+        imageListCell.dateLabel.text = photo.createdAt.map {
+            dateFormatter.string(from: $0)
+        } ?? ""
         
         let likeImage = photo.isLiked ? UIImage(named: "like_button_on") : UIImage(named: "like_button_off")
         imageListCell.likeButton.setImage(likeImage, for: .normal)
