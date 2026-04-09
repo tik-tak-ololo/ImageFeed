@@ -71,7 +71,7 @@ final class AuthViewController: UIViewController {
     }
     
     private func setupContent() {
-        logoImageView.image = UIImage(named: "auth_screen_logo")
+        logoImageView.image = UIImage(resource: .authScreenLogo )
     }
     
     private func setupActions() {
@@ -79,8 +79,8 @@ final class AuthViewController: UIViewController {
     }
     
     private func configureBackButton() {
-        navigationController?.navigationBar.backIndicatorImage = UIImage(named: "nav_back_button")
-        navigationController?.navigationBar.backIndicatorTransitionMaskImage = UIImage(named: "nav_back_button")
+        navigationController?.navigationBar.backIndicatorImage = UIImage(resource: .navBackButton)
+        navigationController?.navigationBar.backIndicatorTransitionMaskImage = UIImage(resource: .navBackButton)
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         navigationItem.backBarButtonItem?.tintColor = .ypBlackIOS
     }

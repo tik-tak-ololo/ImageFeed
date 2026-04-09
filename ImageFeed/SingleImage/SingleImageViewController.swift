@@ -6,19 +6,11 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class SingleImageViewController: UIViewController {
-
-    var image: UIImage? {
-        didSet {
-            guard isViewLoaded else { return }
-            imageView.image = image
-            
-            if let image = image {
-                rescaleAndCenterImageInScrollView(image: image)
-            }
-        }
-    }
+    
+    var imageURL: URL?
     
     var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -55,16 +47,7 @@ final class SingleImageViewController: UIViewController {
         setupScrollView()
         setupContent()
         setupActions()
-        
-        imageView.image = image
-        
-        if let image = image {
-            imageView.frame.size = image.size
-            rescaleAndCenterImageInScrollView(image: image)
-        }
-        
-        scrollView.minimumZoomScale = 0.1
-        scrollView.maximumZoomScale = 1.25
+        loadImage()
     }
     
     private func setupView() {
@@ -107,11 +90,11 @@ final class SingleImageViewController: UIViewController {
     }
     
     private func setupContent() {
-        guard let image = UIImage(named: "nav_back_button_white") else { return }
-        backButton.setImage(image, for: .normal)
+        let backButtonImage = UIImage(resource: .navBackButtonWhite)
+        backButton.setImage(backButtonImage, for: .normal)
         
-        guard let image = UIImage(named: "sharing_button") else { return }
-        shareButton.setImage(image, for: .normal)
+        let shareButtonImage = UIImage(resource: .sharingButton)
+        shareButton.setImage(shareButtonImage, for: .normal)
     }
     
     private func setupActions() {
@@ -124,7 +107,12 @@ final class SingleImageViewController: UIViewController {
     }
     
     @objc private func didTapShareButton(_ sender: UIButton) {
-        guard let image else { return }
+        guard let image = imageView.image else {
+            let alert = UIAlertController(title: "Нечем делиться.", message: "Изображение не загрузилось.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+            return
+        }
         let share = UIActivityViewController(
             activityItems: [image],
             applicationActivities: nil
@@ -132,7 +120,7 @@ final class SingleImageViewController: UIViewController {
         present(share, animated: true, completion: nil)
     }
     
-    private func rescaleAndCenterImageInScrollView(image: UIImage) {
+    func rescaleAndCenterImageInScrollView(image: UIImage) {
         let minZoomScale = scrollView.minimumZoomScale
         let maxZoomScale = scrollView.maximumZoomScale
         view.layoutIfNeeded()
@@ -147,6 +135,27 @@ final class SingleImageViewController: UIViewController {
         let x = (newContentSize.width - visibleRectSize.width) / 2
         let y = (newContentSize.height - visibleRectSize.height) / 2
         scrollView.setContentOffset(CGPoint(x: x, y: y), animated: false)
-    } 
+    }
+    
+    func loadImage() {
+        UIBlockingProgressHUD.show()
+        imageView.kf.setImage(with: imageURL) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            
+            guard let self = self else { return }
+            switch result {
+            case .success(let imageResult):
+                self.rescaleAndCenterImageInScrollView(image: imageResult.image)
+                scrollView.minimumZoomScale = 0.1
+                scrollView.maximumZoomScale = 1.25
+            case .failure(let error):
+                let alert = UIAlertController(title: "Ошибка загрузки изображения.", message: error.localizedDescription, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                present(alert, animated: true)
+                return
+            }
+        }
+
+    }
 }
 

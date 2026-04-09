@@ -6,23 +6,24 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ImagesListViewController: UIViewController {
     
-    private let tableView = {
+    private var imagesListServiceObserver: NSObjectProtocol?
+    
+    let tableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
 
         tableView.translatesAutoresizingMaskIntoConstraints = false
 
         tableView.rowHeight = 200
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
-        
+        tableView.separatorStyle = .none
         tableView.backgroundColor = .ypBlackIOS
         
         return tableView
     }()
-    
-    let photosName: [String] = Array(0..<20).map{ "\($0)" }
     
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -31,12 +32,26 @@ final class ImagesListViewController: UIViewController {
         return formatter
     }()
     
+    var photos: [Photo] = []
+    let imagesListService = ImagesListService()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
         setupSubviews()
         setupConstraints()
         setupTableView()
+        
+        imagesListServiceObserver = NotificationCenter.default.addObserver(
+            forName: ImagesListService.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            self.updateTableViewAnimated()
+        }
+        
+        imagesListService.fetchPhotosNextPage(){ result in}
     }
     
     private func setupView() {
@@ -66,25 +81,62 @@ final class ImagesListViewController: UIViewController {
     // Заменяем prepare(for:sender:) на явную навигацию кодом
     func showSingleImage(at indexPath: IndexPath) {
         
-        let singleImageViewController = SingleImageViewController();
-        let image = UIImage(named: photosName[indexPath.row])
-        singleImageViewController.image = image
+        let photo = photos[indexPath.row]
+        let url = URL(string: photo.largeImageURL)
+        guard let url else { return }
+        
+        let singleImageViewController = SingleImageViewController()
+        singleImageViewController.imageURL = url
         present(singleImageViewController, animated: true)
     }
-    
-    func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
-        guard let image = UIImage(named: photosName[indexPath.row]) else {
-            return
+
+    func updateTableViewAnimated() {
+        let oldCount = photos.count
+        let newCount = imagesListService.photos.count
+        photos = imagesListService.photos
+        if oldCount != newCount {
+            tableView.performBatchUpdates {
+                let indexPaths = (oldCount..<newCount).map { i in
+                    IndexPath(row: i, section: 0)
+                }
+                tableView.insertRows(at: indexPaths, with: .automatic)
+            } completion: { _ in }
         }
-
-        cell.cellImage.image = image
-        cell.dateLabel.text = dateFormatter.string(from: Date())
-
-        let isLiked = indexPath.row % 2 == 0
-        let likeImage = isLiked ? UIImage(named: "like_button_on") : UIImage(named: "like_button_off")
-        cell.likeButton.setImage(likeImage, for: .normal)
     }
+    
+    deinit {
+        if let imagesListServiceObserver {
+            NotificationCenter.default.removeObserver(imagesListServiceObserver)
+        }
+    }
+    
+    func configureCell(imageListCell: ImagesListCell, with photo: Photo) {
 
+        imageListCell.cellImage.kf.indicatorType = .activity
+        
+        let placeholder = UIImage(resource: .placeholder)
+        imageListCell.cellImage.tintColor = .systemGray3
+        imageListCell.cellImage.contentMode = .center
+        imageListCell.cellImage.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 40, weight: .regular)
+        
+        if let imageURL = URL(string: photo.smallImageURL) {
+            imageListCell.cellImage.kf.setImage(
+                with: imageURL,
+                placeholder: placeholder,
+                options: [.transition(.fade(0.2)), .cacheOriginalImage])
+        }
+        
+        imageListCell.dateLabel.text = photo.createdAt.map {
+            dateFormatter.string(from: $0)
+        } ?? ""
+        
+        let likeImage = photo.isLiked
+            ? UIImage(resource: .likeButtonOn)
+            : UIImage(resource: .likeButtonOff)
+        
+        imageListCell.likeButton.setImage(likeImage, for: .normal)
+        
+    }
 
 }
 

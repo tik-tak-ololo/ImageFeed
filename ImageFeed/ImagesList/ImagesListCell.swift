@@ -6,10 +6,12 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ImagesListCell: UITableViewCell {
     
     static let reuseIdentifier = "ImagesListCell"
+    weak var delegate: ImagesListCellDelegate?
     
     let cellImage: UIImageView = {
         let image = UIImageView()
@@ -30,14 +32,25 @@ final class ImagesListCell: UITableViewCell {
     let likeButton: UIButton = {
         let likeButton = UIButton(type: .custom)
         likeButton.translatesAutoresizingMaskIntoConstraints = false
+        likeButton.accessibilityIdentifier = "likeButton"
+        likeButton.setImage(UIImage(resource: .likeButtonOff), for: .normal)
         return likeButton
     }()
+    
+    func setIsLiked(_ isLiked: Bool) {
+        let image = isLiked
+            ? UIImage(resource: .likeButtonOn)
+            : UIImage(resource: .likeButtonOff)
+        likeButton.setImage(image, for: .normal)
+        likeButton.accessibilityValue = isLiked ? "liked" : "not_liked"
+    }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupView()
         setupSubviews()
         setupConstraints()
+        setupActions()
     }
 
     required init?(coder: NSCoder) {
@@ -45,6 +58,14 @@ final class ImagesListCell: UITableViewCell {
         setupView()
         setupSubviews()
         setupConstraints()
+        setupActions()
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        cellImage.kf.cancelDownloadTask()
+        cellImage.image = UIImage(resource: .placeholder)
+        cellImage.kf.indicatorType = .none
     }
     
     private func setupView() {
@@ -75,5 +96,12 @@ final class ImagesListCell: UITableViewCell {
             likeButton.topAnchor.constraint(equalTo: cellImage.topAnchor)
         ])
     }
-
+    
+    private func setupActions() {
+        likeButton.addTarget(self, action: #selector(likeButtonClicked(_:)), for: .touchUpInside)
+    }
+    
+    @objc private func likeButtonClicked(_ sender: UIButton) {
+        delegate?.imageListCellDidTapLike(self)
+    }
 }

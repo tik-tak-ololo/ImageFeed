@@ -13,6 +13,7 @@ enum NetworkError: Error {
     case urlSessionError
     case invalidRequest
     case decodingError(Error)
+    case request​In​Progress
 }
 
 extension URLSession {
@@ -64,7 +65,7 @@ extension URLSession {
                     } else {
                         print("Ошибка декодирования: \(error.localizedDescription), Данные: \(String(data: data, encoding: .utf8) ?? "")")
                     }
-                    completion(.failure(error))
+                    completion(.failure(NetworkError.decodingError(error)))
                 }
 
             case .failure(let error):

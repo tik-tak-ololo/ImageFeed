@@ -41,7 +41,7 @@ final class SplashViewController: UIViewController {
     }
     
     private func setupImageView() {
-        let imageSplashScreenLogo = UIImage(named: "splashScreenLogo")
+        let imageSplashScreenLogo = UIImage(resource: .logo)
 
         imageView.image = imageSplashScreenLogo
 

@@ -111,7 +111,7 @@ final class ProfileViewController: UIViewController {
     }
     
     private func setupContent() {
-        guard let image = UIImage(named: "exit_button") else { return }
+        let image = UIImage(resource: .exitButton)
         logoutButton.setImage(image, for: .normal)
         
     }
@@ -180,7 +180,38 @@ final class ProfileViewController: UIViewController {
 
     @objc
     private func didTapLogoutButton() {
+        let alert = UIAlertController(title: "Пока, пока!", message: "Уверены, что хотите выйти?", preferredStyle: .alert)
+
+        let confirm = UIAlertAction(title: "Да", style: .destructive) { [weak self] _ in
+            guard let self = self else { return }
+            ProfileLogoutService.shared.logout()
+            self.dismiss(animated: true)
+            self.switchToSplashViewController()
+        }
+
+        let cancel = UIAlertAction(title: "Нет", style: .default, handler: nil)
+
+        // Сначала добавляем «Да», затем «Нет»
+        alert.addAction(confirm)
+        alert.addAction(cancel)
+
+        present(alert, animated: true)
+    }
+    
+    private func switchToSplashViewController() {
         
+        // Получаем активную сцену и её ключевое окно
+         guard let window = UIApplication.shared.connectedScenes
+             .compactMap({ $0 as? UIWindowScene })
+             .flatMap({ $0.windows })
+             .first(where: { $0.isKeyWindow })
+         else {
+             assertionFailure("Invalid window configuration")
+             return
+         }
+        
+        let splashViewController = SplashViewController()
+        window.rootViewController = splashViewController
     }
     
 }
