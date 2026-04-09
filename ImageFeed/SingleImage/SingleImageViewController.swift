@@ -90,11 +90,11 @@ final class SingleImageViewController: UIViewController {
     }
     
     private func setupContent() {
-        guard let image = UIImage(named: "nav_back_button_white") else { return }
-        backButton.setImage(image, for: .normal)
+        let backButtonImage = UIImage(resource: .navBackButtonWhite)
+        backButton.setImage(backButtonImage, for: .normal)
         
-        guard let image = UIImage(named: "sharing_button") else { return }
-        shareButton.setImage(image, for: .normal)
+        let shareButtonImage = UIImage(resource: .sharingButton)
+        shareButton.setImage(shareButtonImage, for: .normal)
     }
     
     private func setupActions() {

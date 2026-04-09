@@ -113,7 +113,12 @@ final class ImagesListViewController: UIViewController {
     func configureCell(imageListCell: ImagesListCell, with photo: Photo) {
 
         imageListCell.cellImage.kf.indicatorType = .activity
-        let placeholder = UIImage(named: "placeholder_image")
+        
+        let placeholder = UIImage(resource: .placeholder)
+        imageListCell.cellImage.tintColor = .systemGray3
+        imageListCell.cellImage.contentMode = .center
+        imageListCell.cellImage.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 40, weight: .regular)
+        
         if let imageURL = URL(string: photo.smallImageURL) {
             imageListCell.cellImage.kf.setImage(
                 with: imageURL,
@@ -125,7 +130,10 @@ final class ImagesListViewController: UIViewController {
             dateFormatter.string(from: $0)
         } ?? ""
         
-        let likeImage = photo.isLiked ? UIImage(named: "like_button_on") : UIImage(named: "like_button_off")
+        let likeImage = photo.isLiked
+            ? UIImage(resource: .likeButtonOn)
+            : UIImage(resource: .likeButtonOff)
+        
         imageListCell.likeButton.setImage(likeImage, for: .normal)
         
     }

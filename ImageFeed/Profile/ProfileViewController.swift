@@ -111,7 +111,7 @@ final class ProfileViewController: UIViewController {
     }
     
     private func setupContent() {
-        guard let image = UIImage(named: "exit_button") else { return }
+        let image = UIImage(resource: .exitButton)
         logoutButton.setImage(image, for: .normal)
         
     }

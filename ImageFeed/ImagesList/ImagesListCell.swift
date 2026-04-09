@@ -33,13 +33,14 @@ final class ImagesListCell: UITableViewCell {
         let likeButton = UIButton(type: .custom)
         likeButton.translatesAutoresizingMaskIntoConstraints = false
         likeButton.accessibilityIdentifier = "likeButton"
-        likeButton.setImage(UIImage(named: "like_button_off"), for: .normal)
+        likeButton.setImage(UIImage(resource: .likeButtonOff), for: .normal)
         return likeButton
     }()
     
     func setIsLiked(_ isLiked: Bool) {
-        let imageName = isLiked ? "like_button_on" : "like_button_off"
-        let image = UIImage(named: imageName)
+        let image = isLiked
+            ? UIImage(resource: .likeButtonOn)
+            : UIImage(resource: .likeButtonOff)
         likeButton.setImage(image, for: .normal)
         likeButton.accessibilityValue = isLiked ? "liked" : "not_liked"
     }
@@ -63,7 +64,7 @@ final class ImagesListCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         cellImage.kf.cancelDownloadTask()
-        cellImage.image = nil
+        cellImage.image = UIImage(resource: .placeholder)
         cellImage.kf.indicatorType = .none
     }
     
