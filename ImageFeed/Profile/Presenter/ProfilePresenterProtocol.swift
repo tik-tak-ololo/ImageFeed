@@ -7,6 +7,6 @@
 
 protocol ProfilePresenterProtocol: AnyObject {
     func viewDidLoad()
-    func didTapLogoutButton()
+    func didTapLogout()
     func didConfirmLogout()
 }

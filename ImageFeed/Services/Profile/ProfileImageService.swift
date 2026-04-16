@@ -27,7 +27,7 @@ struct UserResult: Codable {
     }
 }
 
-final class ProfileImageService {
+final class ProfileImageService: ProfileAvatarURLProvider {
     static let shared = ProfileImageService()
     private init() {}
 

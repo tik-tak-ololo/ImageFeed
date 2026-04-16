@@ -48,7 +48,22 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
         return logoutButton
     }()
     
-    var presenter: ProfilePresenterProtocol?
+    var presenter: ProfilePresenterProtocol
+    private let imageLoader: ImageLoader
+    
+    init(
+        presenter: ProfilePresenterProtocol,
+        imageLoader: ImageLoader
+    ) {
+        self.presenter = presenter
+        self.imageLoader = imageLoader
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -59,7 +74,7 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
         setupContent()
         setupActions()
         
-        presenter?.viewDidLoad()
+        presenter.viewDidLoad()
     }
     
     private func setupView() {
@@ -110,38 +125,24 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
     
     @objc
     private func didTapLogoutButton() {
-        presenter?.didTapLogoutButton()
+        presenter.didTapLogout()
     }
     
-    // MARK: - ProfileViewProtocol
-    
-    func displayProfile(name: String, login: String, bio: String) {
-        nameLabel.text = name
-        loginNameLabel.text = login
-        descriptionLabel.text = bio
-    }
-    
-    func displayAvatar(from url: URL?) {
-        let placeholderImage = UIImage(systemName: "person.circle.fill")?
+    func render(viewModel: ProfileViewModel) {
+        nameLabel.text = viewModel.fullName
+        loginNameLabel.text = viewModel.username
+        descriptionLabel.text = viewModel.bio
+        
+        let placeholderImage = UIImage(systemName: "person.crop.circle.fill")?
             .withTintColor(.lightGray, renderingMode: .alwaysOriginal)
             .withConfiguration(
-                UIImage.SymbolConfiguration(pointSize: 70, weight: .regular, scale: .large)
+                UIImage.SymbolConfiguration(pointSize: 70, weight: .regular)
             )
         
-        guard let url else {
-            avatarImageView.image = placeholderImage
-            return
-        }
-        
-        avatarImageView.kf.indicatorType = .activity
-        avatarImageView.kf.setImage(
-            with: url,
-            placeholder: placeholderImage,
-            options: [
-                .scaleFactor(UIScreen.main.scale),
-                .cacheOriginalImage,
-                .forceRefresh
-            ]
+        imageLoader.setImage(
+            on: avatarImageView,
+            from: viewModel.avatarURL,
+            placeholder: placeholderImage
         )
     }
     
@@ -154,7 +155,7 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
         
         let confirm = UIAlertAction(title: "Да", style: .destructive) { [weak self] _ in
             guard let self else { return }
-            presenter?.didConfirmLogout()
+            presenter.didConfirmLogout()
         }
         
         let cancel = UIAlertAction(title: "Нет", style: .default)

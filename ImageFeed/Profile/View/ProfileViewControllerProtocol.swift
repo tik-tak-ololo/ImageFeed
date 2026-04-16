@@ -8,8 +8,7 @@
 import WebKit
 
 protocol ProfileViewControllerProtocol: AnyObject {
-    func displayProfile(name: String, login: String, bio: String)
-    func displayAvatar(from url: URL?)
+    func render(viewModel: ProfileViewModel)
     func showLogoutConfirmation()
     func switchToSplashScreen()
 }
