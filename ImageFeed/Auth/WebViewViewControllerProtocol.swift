@@ -5,7 +5,7 @@
 //  Created by Сергей Хмелёв on 14.04.2026.
 //
 
-import WebKit
+import Foundation
 
 public protocol WebViewViewControllerProtocol: AnyObject {
     var presenter: WebViewPresenterProtocol? { get set }

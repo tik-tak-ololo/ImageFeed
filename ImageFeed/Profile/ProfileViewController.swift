@@ -8,11 +8,13 @@
 import UIKit
 import Kingfisher
 
-final class ProfileViewController: UIViewController {
+final class ProfileViewController: UIViewController, ProfileViewControllerProtocol {
     
     private let avatarImageView: UIImageView = {
         let avatarImageView = UIImageView()
         avatarImageView.translatesAutoresizingMaskIntoConstraints = false
+        avatarImageView.clipsToBounds = true
+        avatarImageView.layer.cornerRadius = 35
         return avatarImageView
     }()
     
@@ -46,7 +48,7 @@ final class ProfileViewController: UIViewController {
         return logoutButton
     }()
     
-    private var profileImageServiceObserver: NSObjectProtocol?
+    var presenter: ProfilePresenterProtocol?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,19 +59,7 @@ final class ProfileViewController: UIViewController {
         setupContent()
         setupActions()
         
-        if let profile = ProfileService.shared.profile {
-            updateProfileDetails(profile: profile)
-        }
-        profileImageServiceObserver = NotificationCenter.default
-            .addObserver(
-                forName: ProfileImageService.didChangeNotification,
-                object: nil,
-                queue: .main
-            ) { [weak self] _ in
-                guard let self = self else { return }
-                self.updateAvatar()
-            }
-        updateAvatar()
+        presenter?.viewDidLoad()
     }
     
     private func setupView() {
@@ -111,107 +101,79 @@ final class ProfileViewController: UIViewController {
     }
     
     private func setupContent() {
-        let image = UIImage(resource: .exitButton)
-        logoutButton.setImage(image, for: .normal)
-        
+        logoutButton.setImage(UIImage(resource: .exitButton), for: .normal)
     }
     
     private func setupActions() {
         logoutButton.addTarget(self, action: #selector(didTapLogoutButton), for: .touchUpInside)
     }
     
-    private func updateProfileDetails(profile: Profile) {
-        nameLabel.text = profile.name.isEmpty
-            ? "Имя не указано"
-            : profile.name
-        loginNameLabel.text = profile.loginName.isEmpty
-            ? "@неизвестный_пользователь"
-            : profile.loginName
-        descriptionLabel.text = (profile.bio?.isEmpty ?? true)
-            ? "Профиль не заполнен"
-            : profile.bio
-    }
-    
-    private func updateAvatar() {
-        guard
-            let profileImageURL = ProfileImageService.shared.avatarURL,
-            let imageUrl = URL(string: profileImageURL)
-        else { return }
-        
-        print("imageUrl: \(imageUrl)")
-
-        let placeholderImage = UIImage(systemName: "person.circle.fill")?
-            .withTintColor(.lightGray, renderingMode: .alwaysOriginal)
-            .withConfiguration(UIImage.SymbolConfiguration(pointSize: 70, weight: .regular, scale: .large))
-
-        let processor = RoundCornerImageProcessor(cornerRadius: 35) // Радиус для круга
-        avatarImageView.kf.indicatorType = .activity
-        avatarImageView.kf.setImage(
-            with: imageUrl,
-            placeholder: placeholderImage,
-            options: [
-                .processor(processor),
-                .scaleFactor(UIScreen.main.scale), // Учитываем масштаб экрана
-                .cacheOriginalImage, // Кэшируем оригинал
-                .forceRefresh // Игнорируем кэш, чтобы обновить
-            ]) { result in
-
-                switch result {
-                    // Успешная загрузка
-                case .success(let value):
-                    // Картинка
-                    print(value.image)
-
-                    // Откуда картинка загружена:
-                    // - .none — из сети.
-                    // - .memory — из кэша оперативной памяти.
-                    // - .disk — из дискового кэша.
-                    print(value.cacheType)
-
-                    // Информация об источнике.
-                    print(value.source)
-
-                    // В случае ошибки
-                case .failure(let error):
-                    print(error)
-                }
-            }
-    }
-
     @objc
     private func didTapLogoutButton() {
-        let alert = UIAlertController(title: "Пока, пока!", message: "Уверены, что хотите выйти?", preferredStyle: .alert)
-
-        let confirm = UIAlertAction(title: "Да", style: .destructive) { [weak self] _ in
-            guard let self = self else { return }
-            ProfileLogoutService.shared.logout()
-            self.dismiss(animated: true)
-            self.switchToSplashViewController()
+        presenter?.didTapLogoutButton()
+    }
+    
+    // MARK: - ProfileViewProtocol
+    
+    func displayProfile(name: String, login: String, bio: String) {
+        nameLabel.text = name
+        loginNameLabel.text = login
+        descriptionLabel.text = bio
+    }
+    
+    func displayAvatar(from url: URL?) {
+        let placeholderImage = UIImage(systemName: "person.circle.fill")?
+            .withTintColor(.lightGray, renderingMode: .alwaysOriginal)
+            .withConfiguration(
+                UIImage.SymbolConfiguration(pointSize: 70, weight: .regular, scale: .large)
+            )
+        
+        guard let url else {
+            avatarImageView.image = placeholderImage
+            return
         }
-
-        let cancel = UIAlertAction(title: "Нет", style: .default, handler: nil)
-
-        // Сначала добавляем «Да», затем «Нет»
+        
+        avatarImageView.kf.indicatorType = .activity
+        avatarImageView.kf.setImage(
+            with: url,
+            placeholder: placeholderImage,
+            options: [
+                .scaleFactor(UIScreen.main.scale),
+                .cacheOriginalImage,
+                .forceRefresh
+            ]
+        )
+    }
+    
+    func showLogoutConfirmation() {
+        let alert = UIAlertController(
+            title: "Пока, пока!",
+            message: "Уверены, что хотите выйти?",
+            preferredStyle: .alert
+        )
+        
+        let confirm = UIAlertAction(title: "Да", style: .destructive) { [weak self] _ in
+            guard let self else { return }
+            presenter?.didConfirmLogout()
+        }
+        
+        let cancel = UIAlertAction(title: "Нет", style: .default)
+        
         alert.addAction(confirm)
         alert.addAction(cancel)
-
+        
         present(alert, animated: true)
     }
     
-    private func switchToSplashViewController() {
+    func switchToSplashScreen() {
+        guard let window = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap({ $0.windows })
+            .first(where: { $0.isKeyWindow }) else {
+            assertionFailure("Invalid window configuration")
+            return
+        }
         
-        // Получаем активную сцену и её ключевое окно
-         guard let window = UIApplication.shared.connectedScenes
-             .compactMap({ $0 as? UIWindowScene })
-             .flatMap({ $0.windows })
-             .first(where: { $0.isKeyWindow })
-         else {
-             assertionFailure("Invalid window configuration")
-             return
-         }
-        
-        let splashViewController = SplashViewController()
-        window.rootViewController = splashViewController
+        window.rootViewController = SplashViewController()
     }
-    
 }

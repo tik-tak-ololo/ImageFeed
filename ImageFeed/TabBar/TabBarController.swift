@@ -22,8 +22,9 @@ final class TabBarController: UITabBarController {
             image: UIImage(resource: .tabEditorialActive),
             selectedImage: nil
         )
-
-        let profileViewController = ProfileViewController()
+        
+        let profileViewController = ProfileAssembly.build()
+        
         profileViewController.tabBarItem = UITabBarItem(
             title: "", // если подпись не нужна, оставьте пустую строку
             image: UIImage(resource: .tabProfileActive),

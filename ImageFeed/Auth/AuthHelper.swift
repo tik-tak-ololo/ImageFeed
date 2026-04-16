@@ -5,7 +5,7 @@
 //  Created by Сергей Хмелёв on 14.04.2026.
 //
 
-import WebKit
+import Foundation
 
 final class AuthHelper: AuthHelperProtocol {
     let configuration: AuthConfiguration
