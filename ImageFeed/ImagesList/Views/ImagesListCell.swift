@@ -9,10 +9,10 @@ import UIKit
 import Kingfisher
 
 final class ImagesListCell: UITableViewCell {
-    
     static let reuseIdentifier = "ImagesListCell"
+
     weak var delegate: ImagesListCellDelegate?
-    
+
     let cellImage: UIImageView = {
         let image = UIImageView()
         image.layer.cornerRadius = 16
@@ -20,7 +20,7 @@ final class ImagesListCell: UITableViewCell {
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
-    
+
     let dateLabel: UILabel = {
         let dateLabel = UILabel()
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -28,7 +28,7 @@ final class ImagesListCell: UITableViewCell {
         dateLabel.textColor = .ypWhiteIOS
         return dateLabel
     }()
-    
+
     let likeButton: UIButton = {
         let likeButton = UIButton(type: .custom)
         likeButton.translatesAutoresizingMaskIntoConstraints = false
@@ -36,14 +36,6 @@ final class ImagesListCell: UITableViewCell {
         likeButton.setImage(UIImage(resource: .likeButtonOff), for: .normal)
         return likeButton
     }()
-    
-    func setIsLiked(_ isLiked: Bool) {
-        let image = isLiked
-            ? UIImage(resource: .likeButtonOn)
-            : UIImage(resource: .likeButtonOff)
-        likeButton.setImage(image, for: .normal)
-        likeButton.accessibilityValue = isLiked ? "liked" : "not_liked"
-    }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -60,19 +52,29 @@ final class ImagesListCell: UITableViewCell {
         setupConstraints()
         setupActions()
     }
-    
+
     override func prepareForReuse() {
         super.prepareForReuse()
         cellImage.kf.cancelDownloadTask()
         cellImage.image = UIImage(resource: .placeholder)
         cellImage.kf.indicatorType = .none
+        dateLabel.text = nil
+        setIsLiked(false)
     }
-    
+
+    func setIsLiked(_ isLiked: Bool) {
+        let image = isLiked
+            ? UIImage(resource: .likeButtonOn)
+            : UIImage(resource: .likeButtonOff)
+        likeButton.setImage(image, for: .normal)
+        likeButton.accessibilityValue = isLiked ? "liked" : "not_liked"
+    }
+
     private func setupView() {
         selectionStyle = .none
         backgroundColor = .clear
     }
-    
+
     private func setupSubviews() {
         contentView.addSubview(cellImage)
         contentView.addSubview(dateLabel)
@@ -96,12 +98,13 @@ final class ImagesListCell: UITableViewCell {
             likeButton.topAnchor.constraint(equalTo: cellImage.topAnchor)
         ])
     }
-    
+
     private func setupActions() {
         likeButton.addTarget(self, action: #selector(likeButtonClicked(_:)), for: .touchUpInside)
     }
-    
-    @objc private func likeButtonClicked(_ sender: UIButton) {
+
+    @objc
+    private func likeButtonClicked(_ sender: UIButton) {
         delegate?.imageListCellDidTapLike(self)
     }
 }

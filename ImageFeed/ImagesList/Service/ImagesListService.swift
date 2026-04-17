@@ -134,7 +134,7 @@ final class ImagesListService {
 
     }
     
-    func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<Void, Error>) -> Void) {
+    func changeLike(photoId: String, isLike: Bool, completion: @escaping (Result<Void, Error>) -> Void) {
         
         assert(Thread.isMainThread)
         

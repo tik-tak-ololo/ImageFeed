@@ -11,23 +11,25 @@ import Kingfisher
 extension ImagesListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return photos.count
+        presenter?.numberOfRows ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        let cell = tableView.dequeueReusableCell(withIdentifier: ImagesListCell.reuseIdentifier, for: indexPath)
 
-        guard let imageListCell = cell as? ImagesListCell else {
+        guard
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: ImagesListCell.reuseIdentifier,
+                for: indexPath
+            ) as? ImagesListCell,
+            let presenter
+        else {
             return UITableViewCell()
         }
-        
-        let photo = photos[indexPath.row]
-        
-        configureCell(imageListCell: imageListCell, with: photo)
-        
-        imageListCell.delegate = self
-        
-        return imageListCell
+
+        let viewModel = presenter.cellViewModel(for: indexPath)
+        configure(cell, with: viewModel)
+        cell.delegate = self
+
+        return cell
     }
 }
