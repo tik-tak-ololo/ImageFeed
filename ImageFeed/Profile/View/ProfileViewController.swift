@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import Kingfisher
 
 final class ProfileViewController: UIViewController, ProfileViewControllerProtocol {
     
@@ -23,6 +22,7 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.font = UIFont.systemFont(ofSize: 23, weight: .semibold)
         nameLabel.textColor = .ypWhiteIOS
+        nameLabel.numberOfLines = 0
         return nameLabel
     }()
     
@@ -31,6 +31,7 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
         loginNameLabel.translatesAutoresizingMaskIntoConstraints = false
         loginNameLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         loginNameLabel.textColor = .ypGrayIOS
+        loginNameLabel.numberOfLines = 1
         return loginNameLabel
     }()
     
@@ -39,6 +40,7 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         descriptionLabel.textColor = .ypWhiteIOS
+        descriptionLabel.numberOfLines = 0
         return descriptionLabel
     }()
     
@@ -48,7 +50,7 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
         return logoutButton
     }()
     
-    var presenter: ProfilePresenterProtocol
+    let presenter: ProfilePresenterProtocol
     private let imageLoader: ImageLoader
     
     init(
@@ -154,8 +156,7 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
         )
         
         let confirm = UIAlertAction(title: "Да", style: .destructive) { [weak self] _ in
-            guard let self else { return }
-            presenter.didConfirmLogout()
+            self?.presenter.didConfirmLogout()
         }
         
         let cancel = UIAlertAction(title: "Нет", style: .default)
