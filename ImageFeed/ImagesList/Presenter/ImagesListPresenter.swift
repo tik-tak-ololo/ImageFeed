@@ -46,7 +46,7 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
     }
 
     func didSelectRow(at indexPath: IndexPath) {
-        let photo = photos[indexPath.row]
+        guard let photo = photo(at: indexPath) else { return }
         guard let url = URL(string: photo.largeImageURL) else { return }
         router.showSingleImage(with: url)
     }
@@ -59,7 +59,7 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
     }
 
     func didTapLike(at indexPath: IndexPath) {
-        let photo = photos[indexPath.row]
+        guard let photo = photo(at: indexPath) else { return }
 
         view?.showLoading()
 
@@ -80,7 +80,13 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
     }
 
     func cellViewModel(for indexPath: IndexPath) -> ImagesListCellViewModel {
-        let photo = photos[indexPath.row]
+        guard let photo = photo(at: indexPath) else {
+            return ImagesListCellViewModel(
+                imageURL: nil,
+                dateText: "",
+                isLiked: false
+            )
+        }
 
         return ImagesListCellViewModel(
             imageURL: URL(string: photo.smallImageURL),
@@ -90,7 +96,9 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
     }
 
     func heightForRow(at indexPath: IndexPath, tableWidth: CGFloat) -> CGFloat {
-        let photo = photos[indexPath.row]
+        guard let photo = photo(at: indexPath), photo.size.width > 0 else {
+            return 200
+        }
 
         let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
         let imageViewWidth = tableWidth - imageInsets.left - imageInsets.right
@@ -114,5 +122,10 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
 
     private func fetchInitialPhotos() {
         service.fetchPhotosNextPage { _ in }
+    }
+    
+    private func photo(at indexPath: IndexPath) -> Photo? {
+        guard photos.indices.contains(indexPath.row) else { return nil }
+        return photos[indexPath.row]
     }
 }
