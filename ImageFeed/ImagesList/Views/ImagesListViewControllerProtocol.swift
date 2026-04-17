@@ -8,6 +8,7 @@
 import UIKit
 
 protocol ImagesListViewControllerProtocol: AnyObject {
+    func reloadData()
     func insertRows(from oldCount: Int, to newCount: Int)
     func reloadRows(at indexPaths: [IndexPath])
     func showLoading()

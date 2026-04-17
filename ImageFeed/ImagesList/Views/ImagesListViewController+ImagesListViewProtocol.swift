@@ -19,6 +19,10 @@ extension ImagesListViewController: ImagesListViewControllerProtocol {
             tableView.insertRows(at: indexPaths, with: .automatic)
         }
     }
+    
+    func reloadData() {
+        tableView.reloadData()
+    }
 
     func reloadRows(at indexPaths: [IndexPath]) {
         tableView.reloadRows(at: indexPaths, with: .automatic)
