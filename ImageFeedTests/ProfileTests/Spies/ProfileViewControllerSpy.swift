@@ -12,18 +12,25 @@ final class ProfileViewControllerSpy: ProfileViewControllerProtocol {
     
     var presenter: ProfilePresenterProtocol?
     
+    var renderedViewModel: ProfileViewModel?
+    var renderCallCount = 0
+    var didShowLogoutConfirmation = false
+    var didSwitchToSplashScreen = false
+    
     var renderCalled: Bool = false
     
-    func render(viewModel: ImageFeed.ProfileViewModel) {
+    func render(viewModel: ProfileViewModel) {
         renderCalled = true
+        renderCallCount += 1
+        renderedViewModel = viewModel
     }
     
     func showLogoutConfirmation() {
-
+        didShowLogoutConfirmation = true
     }
     
     func switchToSplashScreen() {
-        //given
+        didSwitchToSplashScreen = true
         
     }
 }
