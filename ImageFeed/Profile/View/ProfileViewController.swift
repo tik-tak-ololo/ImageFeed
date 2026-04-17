@@ -166,16 +166,4 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
         
         present(alert, animated: true)
     }
-    
-    func switchToSplashScreen() {
-        guard let window = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .flatMap({ $0.windows })
-            .first(where: { $0.isKeyWindow }) else {
-            assertionFailure("Invalid window configuration")
-            return
-        }
-        
-        window.rootViewController = SplashViewController()
-    }
 }

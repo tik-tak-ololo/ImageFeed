@@ -10,5 +10,4 @@ import WebKit
 protocol ProfileViewControllerProtocol: AnyObject {
     func render(viewModel: ProfileViewModel)
     func showLogoutConfirmation()
-    func switchToSplashScreen()
 }

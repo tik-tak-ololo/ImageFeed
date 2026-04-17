@@ -14,10 +14,12 @@ enum ProfileAssembly {
         let profileImageService = ProfileImageService.shared
         let logoutService = ProfileLogoutService.shared
         let imageLoader = KingfisherImageLoader()
+        let router = ProfileRouter()
         
         let presenter = ProfilePresenter(profileDataProvider: profileService,
                                          profileAvatarURLProvider: profileImageService,
-                                         profileLogoutService: logoutService)
+                                         profileLogoutService: logoutService,
+                                         profileRouter: router)
         
         let viewController = ProfileViewController(
             presenter: presenter,

@@ -14,16 +14,19 @@ final class ProfilePresenter: ProfilePresenterProtocol {
     private let profileDataProvider: ProfileDataProvider
     private let profileAvatarURLProvider: ProfileAvatarURLProvider
     private let profileLogoutService: ProfileLogoutServiceProtocol
+    private let profileRouter: ProfileRouterProtocol
     
     private var profileImageServiceObserver: NSObjectProtocol?
     
     init(profileDataProvider: ProfileDataProvider,
          profileAvatarURLProvider: ProfileAvatarURLProvider,
-         profileLogoutService: ProfileLogoutServiceProtocol
+         profileLogoutService: ProfileLogoutServiceProtocol,
+         profileRouter: ProfileRouterProtocol
     ) {
         self.profileDataProvider = profileDataProvider
         self.profileAvatarURLProvider = profileAvatarURLProvider
         self.profileLogoutService = profileLogoutService
+        self.profileRouter = profileRouter
     }
     
     func viewDidLoad() {
@@ -37,7 +40,7 @@ final class ProfilePresenter: ProfilePresenterProtocol {
     
     func didConfirmLogout() {
         profileLogoutService.logout()
-        view?.switchToSplashScreen()
+        profileRouter.switchToSplashScreen()
     }
     
     private func renderProfile() {

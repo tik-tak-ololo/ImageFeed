@@ -35,10 +35,12 @@ final class ProfileTests: XCTestCase {
         let profileDataProvider = ProfileDataProviderDummy()
         let profileAvatarURLProvider = ProfileAvatarURLProviderDummy()
         let profileLogoutService = ProfileLogoutServiceDummy()
+        let profileRouter = ProfileRouterDummy()
         
         let presenter = ProfilePresenter(profileDataProvider: profileDataProvider,
                                          profileAvatarURLProvider: profileAvatarURLProvider,
-                                         profileLogoutService: profileLogoutService)
+                                         profileLogoutService: profileLogoutService,
+                                         profileRouter: profileRouter)
         
         presenter.view = viewController
         viewController.presenter = presenter
@@ -66,10 +68,13 @@ final class ProfileTests: XCTestCase {
         
         let logoutService = ProfileLogoutServiceSpy()
         
+        let profileRouter = ProfileRouterDummy()
+        
         let presenter = ProfilePresenter(
             profileDataProvider: dataProvider,
             profileAvatarURLProvider: avatarProvider,
-            profileLogoutService: logoutService
+            profileLogoutService: logoutService,
+            profileRouter: profileRouter
         )
         presenter.view = view
         
@@ -96,11 +101,13 @@ final class ProfileTests: XCTestCase {
         
         let avatarProvider = ProfileAvatarURLProviderStub()
         let logoutService = ProfileLogoutServiceSpy()
+        let profileRouter = ProfileRouterDummy()
         
         let presenter = ProfilePresenter(
             profileDataProvider: dataProvider,
             profileAvatarURLProvider: avatarProvider,
-            profileLogoutService: logoutService
+            profileLogoutService: logoutService,
+            profileRouter: profileRouter
         )
         presenter.view = view
         
@@ -114,7 +121,8 @@ final class ProfileTests: XCTestCase {
         let presenter = ProfilePresenter(
             profileDataProvider: ProfileDataProviderStub(),
             profileAvatarURLProvider: ProfileAvatarURLProviderStub(),
-            profileLogoutService: ProfileLogoutServiceSpy()
+            profileLogoutService: ProfileLogoutServiceSpy(),
+            profileRouter: ProfileRouterDummy()
         )
         presenter.view = view
         
@@ -126,18 +134,20 @@ final class ProfileTests: XCTestCase {
     func testDidConfirmLogoutCallsLogoutAndSwitchesToSplash() {
         let view = ProfileViewControllerSpy()
         let logoutService = ProfileLogoutServiceSpy()
+        let profileRouter = ProfileRouterSpy()
         
         let presenter = ProfilePresenter(
             profileDataProvider: ProfileDataProviderStub(),
             profileAvatarURLProvider: ProfileAvatarURLProviderStub(),
-            profileLogoutService: logoutService
+            profileLogoutService: logoutService,
+            profileRouter: profileRouter
         )
         presenter.view = view
         
         presenter.didConfirmLogout()
         
         XCTAssertEqual(logoutService.logoutCallCount, 1)
-        XCTAssertTrue(view.didSwitchToSplashScreen)
+        XCTAssertTrue(profileRouter.didSwitchToSplashScreen)
     }
     
 }
