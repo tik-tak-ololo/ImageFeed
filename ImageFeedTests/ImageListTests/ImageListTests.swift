@@ -10,7 +10,7 @@
 import XCTest
 
 @MainActor
-final class ImagesListPresenterTests: XCTestCase {
+final class ImagesListTests: XCTestCase {
 
     // MARK: - Tests
     
@@ -235,19 +235,19 @@ final class ImagesListPresenterTests: XCTestCase {
         XCTAssertTrue(viewModel.isLiked)
     }
 
-//    func testCellViewModel_WithInvalidIndexPath_ReturnsFallbackViewModel() {
-//        let view = ImagesListViewControllerSpy()
-//        let service = ImagesListServiceMock()
-//        let router = ImagesListRouterSpy()
-//
-//        let sut = makeSUT(view: view, service: service, router: router)
-//
-//        let viewModel = sut.cellViewModel(for: IndexPath(row: 0, section: 0))
-//
-//        XCTAssertNil(viewModel.imageURL)
-//        XCTAssertEqual(viewModel.dateText, "")
-//        XCTAssertFalse(viewModel.isLiked)
-//    }
+    func testCellViewModel_WithInvalidIndexPath_ReturnsFallbackViewModel() {
+        let view = ImagesListViewControllerSpy()
+        let service = ImagesListServiceMock()
+        let router = ImagesListRouterSpy()
+
+        let sut = makeSUT(view: view, service: service, router: router)
+
+        let viewModel = sut.cellViewModel(for: IndexPath(row: 0, section: 0))
+
+        XCTAssertNil(viewModel.imageURL)
+        XCTAssertEqual(viewModel.dateText, "")
+        XCTAssertFalse(viewModel.isLiked)
+    }
 
     func testHeightForRow_ReturnsCalculatedHeight() {
         let view = ImagesListViewControllerSpy()
@@ -313,30 +313,33 @@ final class ImagesListPresenterTests: XCTestCase {
         XCTAssertEqual(view.insertedTo, 4)
     }
 
-//    func testObserver_WhenPrefixChanged_ReloadsData() {
-//        let view = ImagesListViewControllerSpy()
-//        let service = ImagesListServiceMock()
-//        let router = ImagesListRouterSpy()
-//
-//        service.photos = [
-//            makePhoto(id: "1"),
-//            makePhoto(id: "2")
-//        ]
-//
-//        let sut = makeSUT(view: view, service: service, router: router)
-//        sut.viewDidLoad()
-//
-//        service.photos = [
-//            makePhoto(id: "999"),
-//            makePhoto(id: "2")
-//        ]
-//
-//        service.notifyPhotosChanged()
-//
-//        XCTAssertEqual(view.reloadDataCallCount, 1)
-//        XCTAssertEqual(view.insertRowsCallCount, 0)
-//    }
+    func testObserver_WhenPrefixChanged_ReloadsData() {
+        let view = ImagesListViewControllerSpy()
+        let service = ImagesListServiceMock()
+        let router = ImagesListRouterSpy()
 
+        service.photos = [
+            makePhoto(id: "1"),
+            makePhoto(id: "2")
+        ]
+
+        let sut = makeSUT(view: view, service: service, router: router)
+        sut.viewDidLoad()
+
+        let reloadDataCallCountBeforeUpdate = view.reloadDataCallCount
+        let insertRowsCallCountBeforeUpdate = view.insertRowsCallCount
+
+        service.photos = [
+            makePhoto(id: "999"),
+            makePhoto(id: "2")
+        ]
+
+        service.notifyPhotosChanged()
+
+        XCTAssertEqual(view.reloadDataCallCount, reloadDataCallCountBeforeUpdate + 1)
+        XCTAssertEqual(view.insertRowsCallCount, insertRowsCallCountBeforeUpdate)
+    }
+    
     func testFetchNextPageFailure_ShowsError() {
         let view = ImagesListViewControllerSpy()
         let service = ImagesListServiceMock()
@@ -360,7 +363,7 @@ final class ImagesListPresenterTests: XCTestCase {
 
 // MARK: - Helpers
 
-private extension ImagesListPresenterTests {
+private extension ImagesListTests {
     func makeSUT(
         view: ImagesListViewControllerSpy = ImagesListViewControllerSpy(),
         service: ImagesListServiceMock = ImagesListServiceMock(),

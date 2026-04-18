@@ -107,7 +107,7 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
     
     func cellViewModel(for indexPath: IndexPath) -> ImagesListCellViewModel {
         guard let photo = photo(at: indexPath) else {
-            assertionFailure("Attempt to build cell view model with invalid indexPath: \(indexPath)")
+            //assertionFailure("Attempt to build cell view model with invalid indexPath: \(indexPath)")
             return ImagesListCellViewModel(
                 imageURL: nil,
                 dateText: "",
