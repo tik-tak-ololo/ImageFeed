@@ -8,26 +8,28 @@
 import UIKit
 
 final class SplashViewController: UIViewController {
-    private let showAuthenticationScreenSegueIdentifier = "ShowAuthenticationScreen"
-
     private let storage = OAuth2TokenStorage.shared
     private let profileService = ProfileService.shared
-    
-    private var imageView: UIImageView = {
-        let imageView = UIImageView()
+
+    private let imageView: UIImageView = {
+        let imageView = UIImageView(image: UIImage(resource: .logo))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .ypBlackIOS
+        setupImageView()
+    }
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        setupImageView()
-        
+
         if let token = storage.token {
             fetchProfile(token: token)
         } else {
-            presentAuthViewController()
+            presentAuthFlow()
         }
     }
 
@@ -39,13 +41,10 @@ final class SplashViewController: UIViewController {
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
     }
-    
+
     private func setupImageView() {
-        let imageSplashScreenLogo = UIImage(resource: .logo)
+        guard imageView.superview == nil else { return }
 
-        imageView.image = imageSplashScreenLogo
-
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(imageView)
 
         NSLayoutConstraint.activate([
@@ -54,36 +53,33 @@ final class SplashViewController: UIViewController {
         ])
     }
 
-    private func presentAuthViewController() {
-        
+    private func presentAuthFlow() {
         let authViewController = AuthViewController()
         authViewController.delegate = self
-        authViewController.modalPresentationStyle = .fullScreen
-        present(authViewController, animated: true)
+
+        let navigationController = UINavigationController(rootViewController: authViewController)
+        navigationController.modalPresentationStyle = .fullScreen
+        navigationController.setNavigationBarHidden(true, animated: false)
+
+        present(navigationController, animated: true)
     }
 
     private func switchToTabBarController() {
-        
-        // Получаем активную сцену и её ключевое окно
-         guard let window = UIApplication.shared.connectedScenes
-             .compactMap({ $0 as? UIWindowScene })
-             .flatMap({ $0.windows })
-             .first(where: { $0.isKeyWindow })
-         else {
-             assertionFailure("Invalid window configuration")
-             return
-         }
-        
-        let tabBarController = TabBarController()
-        window.rootViewController = tabBarController
+        guard let window = view.window else {
+            assertionFailure("SplashViewController is not attached to window")
+            return
+        }
+
+        window.rootViewController = TabBarController()
     }
-    
+
     private func fetchProfile(token: String) {
         UIBlockingProgressHUD.show()
+
         profileService.fetchProfile(token) { [weak self] result in
             UIBlockingProgressHUD.dismiss()
 
-            guard let self = self else { return }
+            guard let self else { return }
 
             switch result {
             case let .success(profile):
@@ -92,7 +88,6 @@ final class SplashViewController: UIViewController {
 
             case let .failure(error):
                 print(error)
-                break
             }
         }
     }
@@ -100,10 +95,12 @@ final class SplashViewController: UIViewController {
 
 extension SplashViewController: AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
-        vc.dismiss(animated: true)
-        
-        if let token = OAuth2TokenStorage.shared.token {
-            fetchProfile(token: token)
+        vc.navigationController?.dismiss(animated: true) { [weak self] in
+            guard let self else { return }
+
+            if let token = OAuth2TokenStorage.shared.token {
+                self.fetchProfile(token: token)
+            }
         }
     }
 }
