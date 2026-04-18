@@ -36,9 +36,9 @@ extension ImagesListViewController: ImagesListViewControllerProtocol {
         UIBlockingProgressHUD.dismiss()
     }
 
-    func showLikeError(message: String) {
+    func showError(title: String, message: String) {
         let alert = UIAlertController(
-            title: "Не удалось поставить лайк.",
+            title: title,
             message: message,
             preferredStyle: .alert
         )

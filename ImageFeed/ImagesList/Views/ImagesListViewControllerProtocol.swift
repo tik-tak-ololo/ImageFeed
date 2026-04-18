@@ -13,5 +13,5 @@ protocol ImagesListViewControllerProtocol: AnyObject {
     func reloadRows(at indexPaths: [IndexPath])
     func showLoading()
     func hideLoading()
-    func showLikeError(message: String)
+    func showError(title: String, message: String)
 }

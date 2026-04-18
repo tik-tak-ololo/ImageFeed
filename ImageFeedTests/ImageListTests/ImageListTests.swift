@@ -177,7 +177,7 @@ final class ImagesListTests: XCTestCase {
         XCTAssertEqual(view.hideLoadingCallCount, 1)
         XCTAssertEqual(view.reloadRowsCallCount, 1)
         XCTAssertEqual(view.reloadedIndexPaths, [IndexPath(row: 0, section: 0)])
-        XCTAssertEqual(view.showLikeErrorMessages.count, 0)
+        XCTAssertEqual(view.showErrorMessages.count, 0)
     }
 
     func testDidTapLike_OnFailure_ShowsAndHidesLoading_AndShowsError() {
@@ -206,7 +206,7 @@ final class ImagesListTests: XCTestCase {
         XCTAssertEqual(view.showLoadingCallCount, 1)
         XCTAssertEqual(view.hideLoadingCallCount, 1)
         XCTAssertEqual(view.reloadRowsCallCount, 0)
-        XCTAssertEqual(view.showLikeErrorMessages.count, 1)
+        XCTAssertEqual(view.showErrorMessages.count, 1)
     }
 
     func testCellViewModel_ReturnsCorrectData() {
@@ -357,7 +357,7 @@ final class ImagesListTests: XCTestCase {
 
         wait(for: [exp], timeout: 1.0)
 
-        XCTAssertEqual(view.showLikeErrorMessages.count, 1)
+        XCTAssertEqual(view.showErrorMessages.count, 1)
     }
 }
 

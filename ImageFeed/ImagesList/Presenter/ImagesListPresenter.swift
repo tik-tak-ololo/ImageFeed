@@ -97,7 +97,7 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
                     self.reloadRowForPhoto(withId: photo.id)
                     
                 case .failure(let error):
-                    self.view?.showLikeError(message: error.localizedDescription)
+                    self.view?.showError(title: "Не удалось поставить лайк!", message: error.localizedDescription)
                 }
             }
         }
@@ -200,7 +200,7 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
             
             self.performOnMain {
                 if case .failure(let error) = result {
-                    self.view?.showLikeError(message: error.localizedDescription)
+                    self.view?.showError(title: "Не удалось загрузить фотографии!", message: error.localizedDescription)
                 }
             }
         }

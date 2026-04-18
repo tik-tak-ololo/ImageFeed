@@ -15,7 +15,7 @@ final class ImagesListViewControllerSpy: ImagesListViewControllerProtocol {
     private(set) var reloadRowsCallCount = 0
     private(set) var showLoadingCallCount = 0
     private(set) var hideLoadingCallCount = 0
-    private(set) var showLikeErrorMessages: [String] = []
+    private(set) var showErrorMessages: [String] = []
 
     private(set) var insertedFrom: Int?
     private(set) var insertedTo: Int?
@@ -44,8 +44,8 @@ final class ImagesListViewControllerSpy: ImagesListViewControllerProtocol {
         hideLoadingCallCount += 1
     }
 
-    func showLikeError(message: String) {
-        showLikeErrorMessages.append(message)
+    func showError(title: String, message: String) {
+        showErrorMessages.append(message)
     }
 }
 
