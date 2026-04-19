@@ -47,6 +47,7 @@ final class ProfileViewController: UIViewController, ProfileViewControllerProtoc
     private let logoutButton: UIButton = {
         let logoutButton = UIButton(type: .custom)
         logoutButton.translatesAutoresizingMaskIntoConstraints = false
+        logoutButton.accessibilityIdentifier = "logoutButton"
         return logoutButton
     }()
     

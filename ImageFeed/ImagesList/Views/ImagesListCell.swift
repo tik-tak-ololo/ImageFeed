@@ -32,7 +32,7 @@ final class ImagesListCell: UITableViewCell {
     let likeButton: UIButton = {
         let likeButton = UIButton(type: .custom)
         likeButton.translatesAutoresizingMaskIntoConstraints = false
-        likeButton.accessibilityIdentifier = "like button off"
+        likeButton.accessibilityIdentifier = "likeButton"
         likeButton.setImage(UIImage(resource: .likeButtonOff), for: .normal)
         return likeButton
     }()
@@ -68,7 +68,6 @@ final class ImagesListCell: UITableViewCell {
             : UIImage(resource: .likeButtonOff)
         likeButton.setImage(image, for: .normal)
         likeButton.accessibilityValue = isLiked ? "liked" : "not_liked"
-        likeButton.accessibilityIdentifier = isLiked ? "like button on" : "like button off"
     }
 
     private func setupView() {
