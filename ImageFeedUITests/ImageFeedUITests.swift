@@ -30,7 +30,7 @@ final class ImageFeedUITests: XCTestCase {
             XCTAssertTrue(feedScreen.isOpened)
     }
     
-    func testFeedBook() throws {
+    func testFeed() throws {
         
         let tablesQuery = app.tables
         let cell = tablesQuery.children(matching: .cell).element(boundBy: 0)
