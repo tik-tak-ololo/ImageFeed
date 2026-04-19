@@ -13,7 +13,6 @@ final class ImageFeedUITests: XCTestCase {
     
     override func setUpWithError() throws {
         continueAfterFailure = false // настройка выполнения тестов, которая прекратит выполнения тестов, если в тесте что-то пошло не так
-        
         app.launch() // запускаем приложение перед каждым тестом
     }
     
@@ -32,70 +31,57 @@ final class ImageFeedUITests: XCTestCase {
     }
     
     func testFeed() throws {
-        let tableView = app.tables.firstMatch
-        XCTAssertTrue(
-            tableView.waitForExistence(timeout: 20),
-            "Экран ленты не открылся"
-        )
-        
-        XCTAssertTrue(
-            tableView.cells.firstMatch.waitForExistence(timeout: 15),
-            "Не удалось дождаться первой ячейки ленты"
-        )
-        
-        XCTContext.runActivity(named: "Прокрутить ленту вверх") { _ in
-            tableView.swipeUp()
-            XCTAssertTrue(
-                tableView.cells.firstMatch.waitForExistence(timeout: 10),
-                "После прокрутки не найдена верхняя ячейка"
-            )
-        }
-        
-        XCTContext.runActivity(named: "Поставить и снять лайк у верхней картинки") { _ in
-            let initialLikeValue = readLikeValueInTopCell(tableView: tableView, timeout: 10)
-            let toggledValue = initialLikeValue == "liked" ? "not_liked" : "liked"
-            
-            tapLikeInTopCell(tableView: tableView)
-            waitForLikeValueInTopCell(tableView: tableView, expected: toggledValue, timeout: 15)
-            
-            waitUntilTopCellLikeButtonIsInteractable(tableView: tableView, timeout: 15)
-            
-            tapLikeInTopCell(tableView: tableView)
-            waitForLikeValueInTopCell(tableView: tableView, expected: initialLikeValue, timeout: 15)
-        }
-        
-        XCTContext.runActivity(named: "Открыть верхнюю картинку") { _ in
-            let topCell = topVisibleCell(in: tableView)
-            tapCellSafely(topCell)
-        }
-        
-        XCTContext.runActivity(named: "Дождаться открытия экрана одной картинки") { _ in
-            let singleImageScrollView = app.scrollViews["singleImageScrollView"].firstMatch
-            XCTAssertTrue(
-                singleImageScrollView.waitForExistence(timeout: 15),
-                "Экран одной картинки не открылся. Добавьте accessibilityIdentifier = \"singleImageScrollView\""
-            )
-        }
-        
-        XCTContext.runActivity(named: "Увеличить и уменьшить картинку") { _ in
-            let singleImageScrollView = app.scrollViews["singleImageScrollView"].firstMatch
-            singleImageScrollView.pinch(withScale: 2.0, velocity: 1.0)
-            singleImageScrollView.pinch(withScale: 0.5, velocity: -1.0)
-        }
-        
-        XCTContext.runActivity(named: "Вернуться на экран ленты") { _ in
-            let backButton = app.buttons["singleImageBackButton"].firstMatch
-            XCTAssertTrue(
-                backButton.waitForExistence(timeout: 10),
-                "Кнопка назад не найдена. Добавьте accessibilityIdentifier = \"singleImageBackButton\""
-            )
-            backButton.tap()
-            
-            XCTAssertTrue(
-                tableView.waitForExistence(timeout: 10),
-                "Не удалось вернуться на экран ленты"
-            )
-        }
+        // 1) Ждём, пока откроется экран ленты
+        let table = app.tables.firstMatch
+        XCTAssertTrue(table.waitForExistence(timeout: 20), "Лента не открылась")
+
+        // 2) Скроллим вверх, чтобы гарантированно появились реальные ячейки
+        table.swipeUp()
+
+        // 3) Находим видимую ячейку
+        let cell = try visibleFeedCell(in: table)
+        XCTAssertTrue(cell.exists, "Не найдена видимая ячейка ленты")
+
+        // 4) Запоминаем исходное состояние likeButton
+        let likeButton = cell.buttons["likeButton"]
+        XCTAssertTrue(likeButton.waitForExistence(timeout: 10), "В ячейке нет likeButton")
+
+        let initialValue = (likeButton.value as? String) ?? "not_liked"
+        let toggledValue = initialValue == "liked" ? "not_liked" : "liked"
+
+        // 5) Ставим/снимаем лайк
+        tapIfNeededAfterScroll(element: likeButton, container: table)
+
+        // 6) Проверяем, что accessibilityValue изменился
+        wait(forValue: toggledValue, of: likeButton, timeout: 10)
+        XCTAssertEqual(likeButton.value as? String, toggledValue)
+
+        // 7) Нажимаем ещё раз
+        tapIfNeededAfterScroll(element: likeButton, container: table)
+
+        // 8) Проверяем возврат в исходное состояние
+        wait(forValue: initialValue, of: likeButton, timeout: 10)
+        XCTAssertEqual(likeButton.value as? String, initialValue)
+
+        // 9) Тап по ячейке
+        tapIfNeededAfterScroll(element: cell, container: table)
+
+        // 10) Ждём открытия картинки на весь экран
+        let fullScreenImage = app.scrollViews["singleImageScrollView"]
+        XCTAssertTrue(fullScreenImage.waitForExistence(timeout: 15), "Экран одиночной картинки не открылся")
+
+        // 11) Увеличиваем картинку
+        fullScreenImage.pinch(withScale: 3.0, velocity: 1.0)
+
+        // 12) Уменьшаем картинку
+        fullScreenImage.pinch(withScale: 0.5, velocity: -1.0)
+
+        // 13) Возвращаемся на экран ленты
+        let backButton = app.buttons["singleImageBackButton"]
+        XCTAssertTrue(backButton.waitForExistence(timeout: 10), "Кнопка назад не найдена")
+        backButton.tap()
+
+        XCTAssertTrue(table.waitForExistence(timeout: 10), "Не удалось вернуться на экран ленты")
     }
     
     func testProfile() throws {
@@ -225,108 +211,55 @@ private struct FeedScreen {
 }
 
 private extension ImageFeedUITests {
-    
-    func topVisibleCell(in tableView: XCUIElement) -> XCUIElement {
-        let cell = tableView.cells.element(boundBy: 0)
-        XCTAssertTrue(cell.waitForExistence(timeout: 10), "Верхняя ячейка не найдена")
-        return cell
-    }
-    
-    func likeButtonInTopCell(tableView: XCUIElement) -> XCUIElement {
-        let cell = topVisibleCell(in: tableView)
-        let button = cell.buttons["likeButton"]
-        XCTAssertTrue(button.waitForExistence(timeout: 10), "Кнопка лайка в верхней ячейке не найдена")
-        return button
-    }
-    
-    func readLikeValueInTopCell(tableView: XCUIElement, timeout: TimeInterval) -> String {
-        let deadline = Date().addingTimeInterval(timeout)
-        
-        while Date() < deadline {
-            let button = likeButtonInTopCell(tableView: tableView)
-            if let value = button.value as? String {
-                return value
+    func visibleFeedCell(in table: XCUIElement) throws -> XCUIElement {
+        let cells = table.cells
+        XCTAssertGreaterThan(cells.count, 0, "В таблице нет ячеек")
+
+        for index in 0..<cells.count {
+            let cell = cells.element(boundBy: index)
+            if cell.exists && cell.isHittable {
+                return cell
             }
-            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
         }
-        
-        XCTFail("Не удалось получить текущее состояние лайка в верхней ячейке")
-        return "not_liked"
-    }
-    
-    func waitForLikeValueInTopCell(tableView: XCUIElement, expected: String, timeout: TimeInterval) {
-        let deadline = Date().addingTimeInterval(timeout)
-        
-        while Date() < deadline {
-            let button = likeButtonInTopCell(tableView: tableView)
-            if let value = button.value as? String, value == expected {
-                return
+
+        // Если после первого свайпа hittable-ячейка не нашлась — пробуем ещё немного прокрутить
+        for _ in 0..<3 {
+            table.swipeUp()
+
+            for index in 0..<cells.count {
+                let cell = cells.element(boundBy: index)
+                if cell.exists && cell.isHittable {
+                    return cell
+                }
             }
-            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
         }
-        
-        let current = (try? currentLikeValueDescription(tableView: tableView)) ?? "nil"
-        XCTFail("Не дождались состояния лайка = \(expected). Текущее значение = \(current)")
+
+        XCTFail("Не удалось найти видимую hittable-ячейку")
+        throw NSError(domain: "ImageFeedUITests", code: 0)
     }
-    
-    func currentLikeValueDescription(tableView: XCUIElement) throws -> String {
-        let button = likeButtonInTopCell(tableView: tableView)
-        return (button.value as? String) ?? "nil"
+
+    func wait(forValue value: String, of element: XCUIElement, timeout: TimeInterval) {
+        let predicate = NSPredicate(format: "value == %@", value)
+        expectation(for: predicate, evaluatedWith: element)
+        waitForExpectations(timeout: timeout)
     }
-    
-    func tapLikeInTopCell(tableView: XCUIElement) {
-        let button = likeButtonInTopCell(tableView: tableView)
-        
-        if button.isHittable {
-            button.tap()
+
+    func tapIfNeededAfterScroll(element: XCUIElement, container: XCUIElement) {
+        if element.isHittable {
+            element.tap()
             return
         }
-        
-        // Делаем очень маленькие подскроллы, чтобы не уехать на другую ячейку
-        tableView.swipeDown()
-        let afterSwipeDown = likeButtonInTopCell(tableView: tableView)
-        if afterSwipeDown.isHittable {
-            afterSwipeDown.tap()
+
+        container.swipeUp()
+
+        if element.isHittable {
+            element.tap()
             return
         }
-        
-        tableView.swipeUp()
-        let afterSwipeUp = likeButtonInTopCell(tableView: tableView)
-        if afterSwipeUp.isHittable {
-            afterSwipeUp.tap()
-            return
-        }
-        
-        // fallback: тап по центру кнопки внутри текущей верхней ячейки
-        let fallbackButton = likeButtonInTopCell(tableView: tableView)
-        fallbackButton.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-    }
-    
-    func waitUntilTopCellLikeButtonIsInteractable(tableView: XCUIElement, timeout: TimeInterval) {
-        let deadline = Date().addingTimeInterval(timeout)
-        
-        while Date() < deadline {
-            let button = likeButtonInTopCell(tableView: tableView)
-            if button.exists && button.isHittable {
-                return
-            }
-            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
-        }
-        
-        // После reloadRows/HUD кнопка может не сразу стать hittable,
-        // но нам важно хотя бы, что она снова существует в верхней ячейке.
-        let button = likeButtonInTopCell(tableView: tableView)
-        XCTAssertTrue(button.exists, "Кнопка лайка исчезла после обновления строки")
-    }
-    
-    func tapCellSafely(_ cell: XCUIElement) {
-        XCTAssertTrue(cell.exists, "Ячейка не существует")
-        
-        if cell.isHittable {
-            cell.tap()
-            return
-        }
-        
-        cell.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+
+        container.swipeDown()
+
+        XCTAssertTrue(element.isHittable, "Элемент существует, но недоступен для нажатия")
+        element.tap()
     }
 }

@@ -11,6 +11,7 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
     private var isInitialLoadRequested = false
 
     private var isNextPageLoading = false
+    private var isDidTapLikeLoading = false
     private var hasMorePages = true
     private let preloadMargin = 2
 
@@ -65,14 +66,19 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
             assertionFailure("Invalid indexPath for like: \(indexPath)")
             return
         }
+        
+        guard !isDidTapLikeLoading else { return }
 
         view?.showLoading()
+        
+        isDidTapLikeLoading = true
 
         service.changeLike(photoId: photo.id, isLike: !photo.isLiked) { [weak self] result in
             guard let self else { return }
 
             self.performOnMain {
-                defer { self.view?.hideLoading() }
+                defer {self.isDidTapLikeLoading = false
+                       self.view?.hideLoading()}
 
                 switch result {
                 case .success:

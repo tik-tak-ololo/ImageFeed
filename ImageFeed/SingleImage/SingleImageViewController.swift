@@ -15,6 +15,7 @@ final class SingleImageViewController: UIViewController {
     var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.accessibilityIdentifier = "singleImageScrollView"
         return scrollView
     }()
     
@@ -29,7 +30,7 @@ final class SingleImageViewController: UIViewController {
     private let backButton: UIButton = {
         let button = UIButton(type: .custom)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.accessibilityIdentifier = "nav back button white"
+        button.accessibilityIdentifier = "singleImageBackButton"
         return button
     }()
     

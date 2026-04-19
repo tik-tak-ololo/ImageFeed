@@ -29,12 +29,21 @@ final class ImagesListCell: UITableViewCell {
         return dateLabel
     }()
 
-    let likeButton: UIButton = {
-        let likeButton = UIButton(type: .custom)
-        likeButton.translatesAutoresizingMaskIntoConstraints = false
-        likeButton.accessibilityIdentifier = "likeButton"
-        likeButton.setImage(UIImage(resource: .likeButtonOff), for: .normal)
-        return likeButton
+//    let likeButton: UIButton = {
+//        let likeButton = UIButton(type: .custom)
+//        likeButton.translatesAutoresizingMaskIntoConstraints = false
+//        likeButton.accessibilityIdentifier = "likeButton"
+//        likeButton.setImage(UIImage(resource: .likeButtonOff), for: .normal)
+//        return likeButton
+//    }()
+    
+    let likeButton: HitAreaButton = {
+        let button = HitAreaButton(type: .custom)
+        button.hitTestInsets = UIEdgeInsets(top: -10, left: -10, bottom: -10, right: -10)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.accessibilityIdentifier = "likeButton"
+        button.setImage(UIImage(resource: .likeButtonOff), for: .normal)
+        return button
     }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
