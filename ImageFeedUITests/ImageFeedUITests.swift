@@ -31,24 +31,25 @@ final class ImageFeedUITests: XCTestCase {
     }
     
     func testFeedBook() throws {
-        let tablesQuery = app.tables
         
+        let tablesQuery = app.tables
         let cell = tablesQuery.children(matching: .cell).element(boundBy: 0)
+        XCTAssertTrue(cell.waitForExistence(timeout: 10))
         cell.swipeUp()
         
-        sleep(5)
+        sleep(10)
         
         let cellToLike = tablesQuery.children(matching: .cell).element(boundBy: 1)
         
         cellToLike.buttons["likeButton"].tap()
-        sleep(5)
+        sleep(10)
         cellToLike.buttons["likeButton"].tap()
         
-        sleep(5)
+        sleep(10)
         
         cellToLike.tap()
         
-        sleep(5)
+        sleep(10)
         
         let image = app.scrollViews.images.element(boundBy: 0)
         // Zoom in
