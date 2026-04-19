@@ -73,6 +73,7 @@ final class ImagesListService {
     
     private(set) var photos: [Photo] = []
     private var task: URLSessionTask?
+    private var changeLikeTask: URLSessionTask?
     private var lastLoadedPage: Int?
     private let dateFormatter: ISO8601DateFormatter
     
@@ -138,7 +139,7 @@ final class ImagesListService {
         
         assert(Thread.isMainThread)
         
-        if task != nil {
+        if changeLikeTask != nil {
             completion(.failure(NetworkError.request​In​Progress))
             return
         }
@@ -154,7 +155,7 @@ final class ImagesListService {
             return
         }
         
-        let task = URLSession.shared.objectTask(for: request) { [weak self] (result: Result<ChangeLikeResult, Error>) in
+        let changeLikeTask = URLSession.shared.objectTask(for: request) { [weak self] (result: Result<ChangeLikeResult, Error>) in
             
             guard let self = self else { return }
             
@@ -169,12 +170,12 @@ final class ImagesListService {
                 completion(.failure(error))
             }
             
-            self.task = nil
+            self.changeLikeTask = nil
         }
         
-        self.task = task
+        self.changeLikeTask = changeLikeTask
         
-        task.resume()
+        changeLikeTask.resume()
         
     }
     
